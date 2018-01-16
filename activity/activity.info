@@ -5,3 +5,4 @@ exec = sugar-activity BlockPartyActivity.BlockPartyActivity
 icon = activity-blockparty
 activity_version = 8 
 show_launcher = yes
+repository = https://github.com/sugarlabs/block-party-activity.git
