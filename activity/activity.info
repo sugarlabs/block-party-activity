@@ -3,5 +3,6 @@ name = BlockParty
 bundle_id = org.laptop.BlockPartyActivity
 exec = sugar-activity BlockPartyActivity.BlockPartyActivity
 icon = activity-blockparty
-activity_version = 8 
+activity_version = 8
+license = MIT
 show_launcher = yes
