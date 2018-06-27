@@ -24,7 +24,7 @@
 
 from BlockParty import BlockParty
 
-from sugar.activity import activity
+from sugar3.activity import activity
 
 class BlockPartyActivity(activity.Activity):
     def __init__(self, handle):
@@ -37,7 +37,6 @@ class BlockPartyActivity(activity.Activity):
         self.connect('focus_in_event', self._focus_in)
         self.connect('focus_out_event', self._focus_out)
         self.block_party = BlockParty(self)
-        
 
     def _cleanup_cb(self, data=None):
         return

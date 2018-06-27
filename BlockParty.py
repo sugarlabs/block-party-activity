@@ -26,45 +26,45 @@
 #  by Vadim Gerasimov
 #  updated 23 Feb 2007
 
-import pygtk
-pygtk.require('2.0')
-import gtk
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+gi.require_version('PangoCairo', '1.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
+from gi.repository import PangoCairo
 import operator
 import time
 import string
-import gobject
 import math
 import pickle
 import getopt
 import sys
 import random
 import copy
-import pango
 import socket
 import os
 
 class VanishingCursor:
-    pix_data = """/* XPM */ static char * invisible_xpm[] = {"1 1 1 1 c None"};"""
-    color = gtk.gdk.Color()
-    pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
-    invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
-    
+
     def __init__ (self, win, hide_time = 3):
         self.save_cursor = None # area.get_cursor()
-	self.win = win
+        self.win = win
         self.hide_time = hide_time
         self.last_touched = time.time()
         self.win.connect("motion-notify-event", self.move_event)
-        self.win.add_events(gtk.gdk.POINTER_MOTION_MASK)
+        self.win.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
 
     def move_event (self, win, event):
-        self.win.window.set_cursor(self.save_cursor)
+        self.win.get_window().set_cursor(self.save_cursor)
         self.last_touched = time.time()
         return True
 
     def time_event (self):
         if time.time()-self.last_touched > self.hide_time :
-            self.win.window.set_cursor(self.invisible)
+            self.win.get_window().set_cursor(Gdk.Cursor(cursor_type=Gdk.CursorType.BLANK_CURSOR))
         return True
 
 class Color:
@@ -333,7 +333,7 @@ class BlockParty:
        cairo_ctx.fill()
     
     def expose_cb(self, widget, event):
-       cairo_ctx = widget.window.cairo_create()
+       cairo_ctx = widget.get_window().cairo_create()
        self.update_picture(cairo_ctx) 
        return True
 
@@ -360,6 +360,7 @@ class BlockParty:
         self.view_glass=None   
         self.draw_background(cairo_ctx)
         self.draw_score(cairo_ctx)
+        self.draw_escape(cairo_ctx)
 
         self.draw_glass(cairo_ctx)
         if self.game_mode is self.GAME_OVER: self.draw_game_end_poster(cairo_ctx)
@@ -369,8 +370,7 @@ class BlockParty:
 
     
     def keypress_cb(self, widget, event):
-#   print gtk.gdk.keyval_name(event.keyval)
-       self.key_action(gtk.gdk.keyval_name(event.keyval))
+       self.key_action(Gdk.keyval_name(event.keyval))
        return True
 
     def keyrelease_cb(self, widget, event):
@@ -386,16 +386,16 @@ class BlockParty:
         return True
 
     def draw_string(self, cairo_ctx, string, x, y, is_center):
-        pl = cairo_ctx.create_layout()
-        pl.set_text(string)
+        pl = PangoCairo.create_layout(cairo_ctx)
+        pl.set_text(string, -1)
         pl.set_font_description(self.scorefont)
-        width = pl.get_size()[0]/pango.SCALE
+        width = pl.get_size()[0]/Pango.SCALE
 
         if is_center:
             x = x - width / 2
  
         cairo_ctx.move_to(int(x), int(y))
-        cairo_ctx.layout_path(pl)
+        PangoCairo.layout_path(cairo_ctx, pl)
     
     def draw_game_end_poster(self, cairo_ctx):
         cairo_ctx.set_source_rgb(self.colors[0].red,
@@ -501,6 +501,15 @@ class BlockParty:
 	            cairo_ctx.rectangle(self.xnext+j*self.bwpx+self.bwpx/2, self.ynext+50+(3-i)*self.bhpx+self.bhpx/2, self.bwpx, self.bhpx)
         cairo_ctx.fill()
 
+    def draw_escape(self, cairo_ctx):
+        cairo_ctx.set_line_width(1)
+        cairo_ctx.set_source_rgb(0,
+                                 0,
+                                 0)
+
+        self.draw_string(cairo_ctx, 'Press ESC to exit', self.xnext+self.bwpx*2.5 + 60, self.window_h-50, True)
+        cairo_ctx.fill()
+
         
     def make_sound(self,filename):
         if self.sound and self.soundon:
@@ -526,20 +535,18 @@ class BlockParty:
 #        if self.window_w > 1200: self.window_w=1200
 #        if self.window_h > 900: self.window_h=900
         self.window.set_title("Block Party")
-        self.window.connect("destroy", lambda w: gtk.main_quit())
+        self.window.connect("destroy", lambda w: Gtk.main_quit())
         self.window.set_size_request(self.window_w, self.window_h)
-        self.window.connect("expose_event", self.expose_cb)
+        self.window.connect("draw", self.expose_cb)
         self.window.connect("key_press_event", self.keypress_cb)
         self.window.connect("key_release_event", self.keyrelease_cb)
         self.vanishing_cursor = VanishingCursor(self.window, 5)
         self.window.show()
-        area = self.window.window
+        # area = self.window.window
 #    area.set_cursor(invisible)
-        gc = area.new_gc() 
-        cm = gc.get_colormap()
-        self.color_back = Color(cm.alloc_color("white"))
-        self.color_glass = Color(cm.alloc_color("grey"))
-        self.color_score = Color(cm.alloc_color("grey26"))
+        self.color_back = Color(Gdk.Color.parse("white")[1])
+        self.color_glass = Color(Gdk.Color.parse("grey")[1])
+        self.color_score = Color(Gdk.Color.parse("grey26")[1])
         self.bwpx=int(self.window_w/(self.bw+self.bw/2+2))
         self.bhpx=int(self.window_h/(self.bh+2))
         if self.bwpx < self.bhpx: self.bhpx = self.bwpx
@@ -549,17 +556,17 @@ class BlockParty:
         self.xnext = self.xshift + (self.bw+3)*self.bwpx
         self.ynext = self.yshift
         for i in range(len(self.colors)):
-            self.colors[i] = Color(cm.alloc_color(self.colors[i]))
-        self.scorefont = pango.FontDescription('Sans')
-        self.scorefont.set_size(self.window_w*14*pango.SCALE/1024)
+            self.colors[i] = Color(Gdk.Color.parse(self.colors[i])[1])
+        self.scorefont = Pango.FontDescription('Sans')
+        self.scorefont.set_size(self.window_w*14*Pango.SCALE/1024)
         self.csconnect()
-        gobject.timeout_add(20, self.timer)
+        GObject.timeout_add(20, self.timer)
         self.init_game()
 
 def main():
-    win = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    win = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
     t = BlockParty(win)
-    gtk.main()
+    Gtk.main()
     return 0
 
 if __name__ == "__main__":
