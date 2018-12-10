@@ -6,3 +6,7 @@ icon = activity-blockparty
 activity_version = 8
 license = MIT
 show_launcher = yes
+summary = https://github.com/sugarlabs/block-party-activity 
+max_participants = 1
+repository = https://github.com/sugarlabs/block-party-activity.git
+tags = Game
