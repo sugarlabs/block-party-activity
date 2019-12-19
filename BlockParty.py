@@ -155,7 +155,7 @@ class BlockParty:
         for i in range(4):
             for j in range(4):
                 if self.py + i < self.bh and self.figure[i][j] != 0:
-                    draw_glass[self.py + i][self.px + j] = self.figure[i][j]
+                    draw_glass[int(self.py) + i][int(self.px) + j] = self.figure[i][j]
 
         for i in range(self.bh):
             for j in range(self.bw):
@@ -240,7 +240,7 @@ class BlockParty:
                     self.make_sound('wah.au'),
                 if i is 2:
                     self.make_sound('lost.wav')
-                print 'GAME OVER: score ' + str(self.score)
+                print('GAME OVER: score ' + str(self.score))
                 self.game_mode = self.GAME_OVER
                 self.complete_update = True
 
@@ -305,7 +305,7 @@ class BlockParty:
                        j + self.px < 0 or j + self.px >= self.bw:
                         return False
                     if i + self.py < self.bh:
-                        if self.glass[i + self.py][j + self.px] != 0:
+                        if self.glass[i + int(self.py)][j + int(self.px)] != 0:
                             return False
         return True
 
@@ -315,7 +315,7 @@ class BlockParty:
         for i in range(4):
             for j in range(4):
                 if i + self.py < self.bh and self.figure[i][j] != 0:
-                    self.glass[i + self.py][j + self.px] = self.figure[i][j]
+                    self.glass[i + int(self.py)][j + int(self.px)] = self.figure[i][j]
 
     def chk_glass(self):
         clearlines = []
@@ -527,7 +527,7 @@ class BlockParty:
                 self.cssock.send(msg)
             except:
                 self.cssock.close()
-                print "Sound server does not respond "
+                print("Sound server does not respond ")
                 return
 
     def draw_next(self, cairo_ctx):
@@ -573,7 +573,7 @@ class BlockParty:
             self.cssock.send(msg)
 
     def mousemove_cb(self, win, event):
-        print "Ah!"
+        print("Ah!")
         return True
 
     def __init__(self, toplevel_window):
