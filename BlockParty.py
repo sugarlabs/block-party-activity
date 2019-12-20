@@ -155,7 +155,7 @@ class BlockParty:
         for i in range(4):
             for j in range(4):
                 if self.py + i < self.bh and self.figure[i][j] != 0:
-                    draw_glass[int(self.py) + i][int(self.px) + j] = self.figure[i][j]
+                    draw_glass[self.py + i][self.px + j] = self.figure[i][j]
 
         for i in range(self.bh):
             for j in range(self.bw):
@@ -260,7 +260,7 @@ class BlockParty:
         tmp = self.figure
         self.figure = self.next_figure
         self.next_figure = tmp
-        self.px = self.bw / 2 - 2
+        self.px = (self.bw // 2) - 2
         self.py = self.bh - 3
         if self.figure is None:
             self.new_figure()
@@ -305,7 +305,7 @@ class BlockParty:
                        j + self.px < 0 or j + self.px >= self.bw:
                         return False
                     if i + self.py < self.bh:
-                        if self.glass[i + int(self.py)][j + int(self.px)] != 0:
+                        if self.glass[i + self.py][j + self.px] != 0:
                             return False
         return True
 
@@ -313,9 +313,9 @@ class BlockParty:
         self.score += self.figure_score
         self.queue_draw_score()
         for i in range(4):
-            for j in range(4):
+            for j in range(4):             
                 if i + self.py < self.bh and self.figure[i][j] != 0:
-                    self.glass[i + int(self.py)][j + int(self.px)] = self.figure[i][j]
+                    self.glass[i + self.py][j + self.px] = self.figure[i][j]
 
     def chk_glass(self):
         clearlines = []
