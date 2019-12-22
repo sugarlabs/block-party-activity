@@ -260,7 +260,7 @@ class BlockParty:
         tmp = self.figure
         self.figure = self.next_figure
         self.next_figure = tmp
-        self.px = (self.bw // 2) - 2
+        self.px = self.bw // 2 - 2
         self.py = self.bh - 3
         if self.figure is None:
             self.new_figure()
