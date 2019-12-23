@@ -240,7 +240,7 @@ class BlockParty:
                     self.make_sound('wah.au'),
                 if i is 2:
                     self.make_sound('lost.wav')
-                print 'GAME OVER: score ' + str(self.score)
+                print('GAME OVER: score ' + str(self.score))
                 self.game_mode = self.GAME_OVER
                 self.complete_update = True
 
@@ -260,7 +260,7 @@ class BlockParty:
         tmp = self.figure
         self.figure = self.next_figure
         self.next_figure = tmp
-        self.px = self.bw / 2 - 2
+        self.px = self.bw // 2 - 2
         self.py = self.bh - 3
         if self.figure is None:
             self.new_figure()
@@ -313,7 +313,7 @@ class BlockParty:
         self.score += self.figure_score
         self.queue_draw_score()
         for i in range(4):
-            for j in range(4):
+            for j in range(4):             
                 if i + self.py < self.bh and self.figure[i][j] != 0:
                     self.glass[i + self.py][j + self.px] = self.figure[i][j]
 
@@ -527,7 +527,7 @@ class BlockParty:
                 self.cssock.send(msg)
             except:
                 self.cssock.close()
-                print "Sound server does not respond "
+                print("Sound server does not respond ")
                 return
 
     def draw_next(self, cairo_ctx):
@@ -573,7 +573,7 @@ class BlockParty:
             self.cssock.send(msg)
 
     def mousemove_cb(self, win, event):
-        print "Ah!"
+        print("Ah!")
         return True
 
     def __init__(self, toplevel_window):
