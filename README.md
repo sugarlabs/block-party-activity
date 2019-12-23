@@ -1,6 +1,12 @@
 # Block Party Activity #
 
-A very fun tetris-like game!
+A very fun Tetris-like game!
+
+Use left and right arrow keys to move blocks sideways.
+
+Use up arrow key to rotate block.
+
+Use space key to hard drop block.
 
 How to use?
 -----------
@@ -22,3 +28,8 @@ Contributing
 ------------
 
 Please consider [contributing](https://github.com/sugarlabs/sugar-docs/blob/master/src/contributing.md) to the project with your ideas and your code.
+
+Author
+------
+
+Written by [Vadim Gerasimov](https://en.wikipedia.org/wiki/Vadim_Gerasimov), who ported the original Tetris game from Electronika 60 to IBM PC.
