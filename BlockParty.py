@@ -54,6 +54,7 @@ game_over3_audfile = '412168__screamstudio__arcade-game-over.wav'
 game_start_audfile = '458416__tolerabledruid6__game-start-nes-style-2.wav'
 game_sfx_hit_audfile = '404792__owlstorm__retro-video-game-sfx-hit-2.wav'
 game_new_block_audfile = '243020__plasterbrain__game-start.ogg'
+
 # init pygame.mixer
 pygame.init()
 pygame.mixer.init
@@ -161,8 +162,6 @@ class BlockParty:
 
     sound = False
     soundon = True
-    cssock = None
-    csid = 544554
         
     def draw_glass(self, cairo_ctx):
         draw_glass = copy.deepcopy(self.glass)
@@ -529,22 +528,6 @@ class BlockParty:
         self.queue_draw_complete()
         self.game_mode = self.SELECT_LEVEL
 
-    def csconnect(self):
-        if self.cssock is not None:
-            self.cssock.close()
-        self.cssock = socket.socket()
-        self.sound = False
-        if self.cssock:
-            try:
-                self.cssock.connect(('127.0.0.1', 6783))
-                self.sound = True
-                msg = "csound.SetChannel('sfplay.%d.on', 1)\n" % self.csid
-                self.cssock.send(msg)
-            except:
-                self.cssock.close()
-                print("Sound server does not respond ")
-                return
-
     def draw_next(self, cairo_ctx):
         cairo_ctx.set_line_width(1)
         cairo_ctx.set_source_rgb(0, 0, 0)
@@ -626,7 +609,6 @@ class BlockParty:
             self.colors[i] = Color(Gdk.Color.parse(self.colors[i])[1])
         self.scorefont = Pango.FontDescription('Sans')
         self.scorefont.set_size(self.window_w * 14 * Pango.SCALE / 1024)
-        self.csconnect()
         GObject.timeout_add(20, self.timer)
         self.init_game()
 
