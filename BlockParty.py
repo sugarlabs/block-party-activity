@@ -45,7 +45,7 @@ from gi.repository import Pango
 from gi.repository import PangoCairo
 
 # Define music here
-# All audio is licensed under CreativeCommons License Attribution. 
+# All audio is licensed under CreativeCommons License Attribution.
 # See LICENSE.audio for more details
 audiodir = 'audio'
 game_over_audfile = '382310__myfox14__game-over-arcade.wav'
@@ -162,7 +162,7 @@ class BlockParty:
 
     sound = False
     soundon = True
-        
+
     def draw_glass(self, cairo_ctx):
         draw_glass = copy.deepcopy(self.glass)
         for i in range(4):
@@ -326,7 +326,7 @@ class BlockParty:
         self.score += self.figure_score
         self.queue_draw_score()
         for i in range(4):
-            for j in range(4):             
+            for j in range(4):
                 if i + self.py < self.bh and self.figure[i][j] != 0:
                     self.glass[i + self.py][j + self.px] = self.figure[i][j]
 
@@ -618,6 +618,7 @@ def main():
     t = BlockParty(win)
     Gtk.main()
     return t is not None
+
 
 if __name__ == "__main__":
     main()
