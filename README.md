@@ -33,3 +33,11 @@ Author
 ------
 
 Written by [Vadim Gerasimov](https://en.wikipedia.org/wiki/Vadim_Gerasimov), who ported the original Tetris game from Electronika 60 to IBM PC.
+
+License
+-------
+
+The BlockParty Sugar Activity is licensed under MIT License. 
+
+The BlockParty Activity packages a set of CC-Audio files located in the `audio` directory.
+See [Audio licenses](audio/LICENSES.md) for more information
