@@ -32,6 +32,7 @@ import random
 import copy
 import socket
 import os
+import pygame
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -42,6 +43,20 @@ from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Pango
 from gi.repository import PangoCairo
+
+# Define music here
+# All audio is licensed under CreativeCommons License Attribution. 
+# See LICENSE.audio for more details
+audiodir = 'audio'
+game_over_audfile = '382310__myfox14__game-over-arcade.wav'
+game_over2_audfile = '333785__projectsu012__8-bit-failure-sound.wav'
+game_over3_audfile = '412168__screamstudio__arcade-game-over.wav'
+game_start_audfile = '458416__tolerabledruid6__game-start-nes-style-2.wav'
+game_sfx_hit_audfile = '404792__owlstorm__retro-video-game-sfx-hit-2.wav'
+game_new_block_audfile = '243020__plasterbrain__game-start.ogg'
+# init pygame.mixer
+pygame.init()
+pygame.mixer.init
 
 
 class VanishingCursor:
@@ -74,7 +89,6 @@ class Color:
 
 
 class BlockParty:
-
     bwpx, bhpx, score, bw, bh, glass, cnt = 0, 0, 0, 11, 20, [], 0
     xshift, yshift = 0, 0
     colors = [
@@ -149,7 +163,7 @@ class BlockParty:
     soundon = True
     cssock = None
     csid = 544554
-
+        
     def draw_glass(self, cairo_ctx):
         draw_glass = copy.deepcopy(self.glass)
         for i in range(4):
@@ -230,16 +244,16 @@ class BlockParty:
         if not self.figure_fits():
             self.py += 1
             self.put_figure()
-            self.make_sound('heart.wav')
+            self.make_sound(game_new_block_audfile)
             self.new_figure()
             if not self.figure_fits():
                 i = random.randint(0, 2)
                 if i is 0:
-                    self.make_sound('ouch.wav')
+                    self.make_sound(game_over_audfile)
                 if i is 1:
-                    self.make_sound('wah.au'),
+                    self.make_sound(game_over2_audfile)
                 if i is 2:
-                    self.make_sound('lost.wav')
+                    self.make_sound(game_over3_audfile)
                 print('GAME OVER: score ' + str(self.score))
                 self.game_mode = self.GAME_OVER
                 self.complete_update = True
@@ -329,7 +343,7 @@ class BlockParty:
                 for j in range(self.bw):
                     self.glass[i][j] = -self.glass[i][j]
         if len(clearlines) > 0:
-            self.make_sound('boom.au')
+            self.make_sound(game_sfx_hit_audfile)
             for i in clearlines:
                 for j in range(self.bw):
                     self.glass[i][j] = 0
@@ -503,6 +517,7 @@ class BlockParty:
                 self.glass[i][j] = 0
 
     def init_game(self):
+        self.make_sound(game_start_audfile)
         self.clear_glass()
         self.complete_update = True
         self.glass_update = True
@@ -567,10 +582,9 @@ class BlockParty:
         cairo_ctx.fill()
 
     def make_sound(self, filename):
-        if self.sound and self.soundon:
-            msg = "perf.InputMessage('i 108 0 3 \"%s\" %d 0.7 0.5 0')\n" % \
-                (os.path.abspath(filename), self.csid)
-            self.cssock.send(msg)
+        filename = os.path.join(audiodir, filename)
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
 
     def mousemove_cb(self, win, event):
         print("Ah!")
