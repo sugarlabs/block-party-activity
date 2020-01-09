@@ -52,12 +52,11 @@ Gst.init()
 # All audio is licensed under CreativeCommons License Attribution.
 # See LICENSE.audio for more details
 audiodir = 'audio'
-game_over_audfile = '382310__myfox14__game-over-arcade.wav'
-game_over2_audfile = '333785__projectsu012__8-bit-failure-sound.wav'
-game_over3_audfile = '412168__screamstudio__arcade-game-over.wav'
-game_start_audfile = '458416__tolerabledruid6__game-start-nes-style-2.wav'
-game_sfx_hit_audfile = '404792__owlstorm__retro-video-game-sfx-hit-2.wav'
-game_new_block_audfile = '243020__plasterbrain__game-start.ogg'
+game_over_audfile = 'ouch.wav'
+game_over2_audfile = 'wah.au'
+game_over3_audfile = 'lost.wav'
+game_sfx_hit_audfile = 'boom.au'
+game_new_block_audfile = 'heart.wav'
 
 
 class AudioPlayer:
@@ -554,7 +553,6 @@ class BlockParty:
                 self.glass[i][j] = 0
 
     def init_game(self):
-        self.make_sound(game_start_audfile)
         self.clear_glass()
         self.complete_update = True
         self.glass_update = True
