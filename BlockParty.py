@@ -32,17 +32,21 @@ import random
 import copy
 import socket
 import os
-import pygame
 
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 gi.require_version('PangoCairo', '1.0')
+gi.require_version('Gst', '1.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
+from gi.repository import GLib
+from gi.repository import Gst
 from gi.repository import Pango
 from gi.repository import PangoCairo
+
+Gst.init()
 
 # Define music here
 # All audio is licensed under CreativeCommons License Attribution.
@@ -55,9 +59,43 @@ game_start_audfile = '458416__tolerabledruid6__game-start-nes-style-2.wav'
 game_sfx_hit_audfile = '404792__owlstorm__retro-video-game-sfx-hit-2.wav'
 game_new_block_audfile = '243020__plasterbrain__game-start.ogg'
 
-# init pygame.mixer
-pygame.init()
-pygame.mixer.init
+
+class AudioPlayer:
+    def __init__(self, path):
+        self.mainloop = GLib.MainLoop()
+        #Creating the gst pipeline we're going to add elements to and use to play the file
+        self.pipeline = Gst.Pipeline.new("mypipeline")
+
+        #creating the filesrc element, and adding it to the pipeline
+        self.filesrc = Gst.ElementFactory.make("filesrc", "filesrc")
+        self.filesrc.set_property("location", os.path.abspath(path))
+        self.pipeline.add(self.filesrc)
+        
+        #creating and adding the decodebin element , an "automagic" element able to configure itself to decode pretty much anything
+        self.decode = Gst.ElementFactory.make("decodebin", "decode")
+        self.pipeline.add(self.decode)
+        #connecting the decoder's "pad-added" event to a handler: the decoder doesn't yet have an output pad (a source), it's created at runtime when the decoders starts receiving some data
+        self.decode.connect("pad-added", self.decode_src_created) 
+        
+        #setting up (and adding) the alsasin, which is actually going to "play" the sound it receives
+        self.sink = Gst.ElementFactory.make("alsasink", "sink")
+        self.pipeline.add(self.sink)
+
+        #linking elements one to another (here it's just the filesrc - > decoder link , the decoder -> sink link's going to be set up later)
+        self.filesrc.link(self.decode)
+        
+    
+        # setting up a single "playbin" element which handles every part of the playback by itself
+        # self.pl = Gst.ElementFactory.make("playbin", "player")
+        # self.pl.set_property('uri','file://'+os.path.abspath(path))
+        
+    def decode_src_created(self, element, pad):
+        pad.link(self.sink.get_static_pad("sink"))
+        
+    def play(self):
+        # running the playbin 
+        self.pipeline.set_state(Gst.State.PLAYING)
+        
 
 
 class VanishingCursor:
@@ -566,8 +604,8 @@ class BlockParty:
 
     def make_sound(self, filename):
         filename = os.path.join(audiodir, filename)
-        pygame.mixer.music.load(filename)
-        pygame.mixer.music.play()
+        audioplayer = AudioPlayer(filename)
+        audioplayer.play()
 
     def mousemove_cb(self, win, event):
         print("Ah!")
