@@ -234,6 +234,7 @@ class BlockParty:
         self.view_glass = draw_glass
 
     def quit_game(self):
+        self.audioplayer.close()
         sys.exit()
 
     def key_action(self, key):
