@@ -32,6 +32,8 @@ import random
 import copy
 import socket
 import os
+from queue import Queue
+import logging
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -49,52 +51,58 @@ from gi.repository import PangoCairo
 Gst.init()
 
 # Define music here
-# All audio is licensed under CreativeCommons License Attribution.
-# See LICENSE.audio for more details
 audiodir = 'audio'
 game_over_audfile = 'ouch.wav'
 game_over2_audfile = 'wah.au'
 game_over3_audfile = 'lost.wav'
 game_sfx_hit_audfile = 'boom.au'
 game_new_block_audfile = 'heart.wav'
+  
+Gst.init(None)
 
 
 class AudioPlayer:
-    def __init__(self, path):
-        self.mainloop = GLib.MainLoop()
-        #Creating the gst pipeline we're going to add elements to and use to play the file
-        self.pipeline = Gst.Pipeline.new("mypipeline")
+    def __init__(self):
+        pipeline = Gst.ElementFactory.make('playbin', 'playbin')
+        pipeline.set_property(
+            "video-sink",
+            Gst.ElementFactory.make('fakesink', 'fakesink'))
 
-        #creating the filesrc element, and adding it to the pipeline
-        self.filesrc = Gst.ElementFactory.make("filesrc", "filesrc")
-        self.filesrc.set_property("location", os.path.abspath(path))
-        self.pipeline.add(self.filesrc)
-        
-        #creating and adding the decodebin element , an "automagic" element able to configure itself to decode pretty much anything
-        self.decode = Gst.ElementFactory.make("decodebin", "decode")
-        self.pipeline.add(self.decode)
-        #connecting the decoder's "pad-added" event to a handler: the decoder doesn't yet have an output pad (a source), it's created at runtime when the decoders starts receiving some data
-        self.decode.connect("pad-added", self.decode_src_created) 
-        
-        #setting up (and adding) the alsasin, which is actually going to "play" the sound it receives
-        self.sink = Gst.ElementFactory.make("alsasink", "sink")
-        self.pipeline.add(self.sink)
+        bus = pipeline.get_bus()
+        bus.add_signal_watch()
+        bus.connect('message::eos', self._on_message_eos)
+        bus.connect('message::error', self._on_message_error)
 
-        #linking elements one to another (here it's just the filesrc - > decoder link , the decoder -> sink link's going to be set up later)
-        self.filesrc.link(self.decode)
-        
-    
-        # setting up a single "playbin" element which handles every part of the playback by itself
-        # self.pl = Gst.ElementFactory.make("playbin", "player")
-        # self.pl.set_property('uri','file://'+os.path.abspath(path))
-        
-    def decode_src_created(self, element, pad):
-        pad.link(self.sink.get_static_pad("sink"))
-        
-    def play(self):
-        # running the playbin 
-        self.pipeline.set_state(Gst.State.PLAYING)
-        
+        self._pipeline = pipeline
+        self._queue = Queue()
+
+    def _dequeue(self):
+        if self._queue.empty():
+            return
+        name = self._queue.get()
+        self._pipeline.props.uri = 'file://' + name
+        self._pipeline.set_state(Gst.State.PLAYING)
+
+    def _on_message_eos(self, bus, message):
+        if self._pipeline:
+            self._pipeline.set_state(Gst.State.NULL)
+            self._dequeue()
+
+    def _on_message_error(self, bus, message):
+        err, debug = message.parse_error()
+        logging.error('%s %s', err, debug)
+        self._pipeline.set_state(Gst.State.NULL)
+        self._dequeue()
+
+    def play(self, name):
+        self._queue.put(name)
+        if self._pipeline:
+            if self._pipeline.get_state(Gst.CLOCK_TIME_NONE)[1] == Gst.State.NULL:
+                self._dequeue()
+
+    def close(self):
+        self._pipeline.set_state(Gst.State.NULL)
+        self._pipeline = None
 
 
 class VanishingCursor:
@@ -601,9 +609,8 @@ class BlockParty:
         cairo_ctx.fill()
 
     def make_sound(self, filename):
-        filename = os.path.join(audiodir, filename)
-        audioplayer = AudioPlayer(filename)
-        audioplayer.play()
+        filename = os.path.abspath(os.path.join(audiodir, filename))
+        self.audioplayer.play(filename)
 
     def mousemove_cb(self, win, event):
         print("Ah!")
@@ -617,7 +624,7 @@ class BlockParty:
         # remove any children of the window that Sugar may have added
         for widget in self.window.get_children():
             self.window.remove(widget)
-
+        
         self.window_w = self.window.get_screen().get_width()
         self.window_h = self.window.get_screen().get_height()
         self.window.set_title("Block Party")
@@ -645,6 +652,7 @@ class BlockParty:
             self.colors[i] = Color(Gdk.Color.parse(self.colors[i])[1])
         self.scorefont = Pango.FontDescription('Sans')
         self.scorefont.set_size(self.window_w * 14 * Pango.SCALE / 1024)
+        self.audioplayer = AudioPlayer()
         GObject.timeout_add(20, self.timer)
         self.init_game()
 
