@@ -50,14 +50,6 @@ from gi.repository import PangoCairo
 
 from aplay import Aplay
 
-# Define music here
-audiodir = 'sounds'
-game_over_audfile = 'ouch.wav'
-game_over2_audfile = 'wah.au'
-game_over3_audfile = 'lost.wav'
-game_sfx_hit_audfile = 'boom.au'
-game_new_block_audfile = 'heart.wav'
-
 
 class VanishingCursor:
 
@@ -244,16 +236,16 @@ class BlockParty:
         if not self.figure_fits():
             self.py += 1
             self.put_figure()
-            self.make_sound(game_new_block_audfile)
+            self.make_sound('heart.wav')
             self.new_figure()
             if not self.figure_fits():
                 i = random.randint(0, 2)
                 if i is 0:
-                    self.make_sound(game_over_audfile)
+                    self.make_sound('ouch.wav')
                 if i is 1:
-                    self.make_sound(game_over2_audfile)
+                    self.make_sound('wah.au')
                 if i is 2:
-                    self.make_sound(game_over3_audfile)
+                    self.make_sound('lost.wav')
                 print('GAME OVER: score ' + str(self.score))
                 self.game_mode = self.GAME_OVER
                 self.complete_update = True
@@ -343,7 +335,7 @@ class BlockParty:
                 for j in range(self.bw):
                     self.glass[i][j] = -self.glass[i][j]
         if len(clearlines) > 0:
-            self.make_sound(game_sfx_hit_audfile)
+            self.make_sound('boom.au')
             for i in clearlines:
                 for j in range(self.bw):
                     self.glass[i][j] = 0
@@ -565,7 +557,7 @@ class BlockParty:
         cairo_ctx.fill()
 
     def make_sound(self, filename):
-        filename = os.path.abspath(os.path.join(audiodir, filename))
+        filename = os.path.abspath(os.path.join('sounds', filename))
         self.audioplayer.play(filename)
 
     def mousemove_cb(self, win, event):
