@@ -32,16 +32,23 @@ import random
 import copy
 import socket
 import os
+from queue import Queue
+import logging
 
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 gi.require_version('PangoCairo', '1.0')
+gi.require_version('Gst', '1.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
+from gi.repository import GLib
+from gi.repository import Gst
 from gi.repository import Pango
 from gi.repository import PangoCairo
+
+from aplay import Aplay
 
 
 class VanishingCursor:
@@ -147,8 +154,6 @@ class BlockParty:
 
     sound = False
     soundon = True
-    cssock = None
-    csid = 544554
 
     def draw_glass(self, cairo_ctx):
         draw_glass = copy.deepcopy(self.glass)
@@ -176,6 +181,7 @@ class BlockParty:
         self.view_glass = draw_glass
 
     def quit_game(self):
+        self.audioplayer.close()
         sys.exit()
 
     def key_action(self, key):
@@ -237,7 +243,7 @@ class BlockParty:
                 if i is 0:
                     self.make_sound('ouch.wav')
                 if i is 1:
-                    self.make_sound('wah.au'),
+                    self.make_sound('wah.au')
                 if i is 2:
                     self.make_sound('lost.wav')
                 print('GAME OVER: score ' + str(self.score))
@@ -313,7 +319,7 @@ class BlockParty:
         self.score += self.figure_score
         self.queue_draw_score()
         for i in range(4):
-            for j in range(4):             
+            for j in range(4):
                 if i + self.py < self.bh and self.figure[i][j] != 0:
                     self.glass[i + self.py][j + self.px] = self.figure[i][j]
 
@@ -514,22 +520,6 @@ class BlockParty:
         self.queue_draw_complete()
         self.game_mode = self.SELECT_LEVEL
 
-    def csconnect(self):
-        if self.cssock is not None:
-            self.cssock.close()
-        self.cssock = socket.socket()
-        self.sound = False
-        if self.cssock:
-            try:
-                self.cssock.connect(('127.0.0.1', 6783))
-                self.sound = True
-                msg = "csound.SetChannel('sfplay.%d.on', 1)\n" % self.csid
-                self.cssock.send(msg)
-            except:
-                self.cssock.close()
-                print("Sound server does not respond ")
-                return
-
     def draw_next(self, cairo_ctx):
         cairo_ctx.set_line_width(1)
         cairo_ctx.set_source_rgb(0, 0, 0)
@@ -567,10 +557,8 @@ class BlockParty:
         cairo_ctx.fill()
 
     def make_sound(self, filename):
-        if self.sound and self.soundon:
-            msg = "perf.InputMessage('i 108 0 3 \"%s\" %d 0.7 0.5 0')\n" % \
-                (os.path.abspath(filename), self.csid)
-            self.cssock.send(msg)
+        filename = os.path.abspath(os.path.join('sounds', filename))
+        self.audioplayer.play(filename)
 
     def mousemove_cb(self, win, event):
         print("Ah!")
@@ -612,7 +600,7 @@ class BlockParty:
             self.colors[i] = Color(Gdk.Color.parse(self.colors[i])[1])
         self.scorefont = Pango.FontDescription('Sans')
         self.scorefont.set_size(self.window_w * 14 * Pango.SCALE / 1024)
-        self.csconnect()
+        self.audioplayer = Aplay()
         GObject.timeout_add(20, self.timer)
         self.init_game()
 
@@ -622,6 +610,7 @@ def main():
     t = BlockParty(win)
     Gtk.main()
     return t is not None
+
 
 if __name__ == "__main__":
     main()
