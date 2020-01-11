@@ -48,61 +48,15 @@ from gi.repository import Gst
 from gi.repository import Pango
 from gi.repository import PangoCairo
 
-Gst.init()
+from aplay import Aplay
 
 # Define music here
-audiodir = 'audio'
+audiodir = 'sounds'
 game_over_audfile = 'ouch.wav'
 game_over2_audfile = 'wah.au'
 game_over3_audfile = 'lost.wav'
 game_sfx_hit_audfile = 'boom.au'
 game_new_block_audfile = 'heart.wav'
-  
-Gst.init(None)
-
-
-class AudioPlayer:
-    def __init__(self):
-        pipeline = Gst.ElementFactory.make('playbin', 'playbin')
-        pipeline.set_property(
-            "video-sink",
-            Gst.ElementFactory.make('fakesink', 'fakesink'))
-
-        bus = pipeline.get_bus()
-        bus.add_signal_watch()
-        bus.connect('message::eos', self._on_message_eos)
-        bus.connect('message::error', self._on_message_error)
-
-        self._pipeline = pipeline
-        self._queue = Queue()
-
-    def _dequeue(self):
-        if self._queue.empty():
-            return
-        name = self._queue.get()
-        self._pipeline.props.uri = 'file://' + name
-        self._pipeline.set_state(Gst.State.PLAYING)
-
-    def _on_message_eos(self, bus, message):
-        if self._pipeline:
-            self._pipeline.set_state(Gst.State.NULL)
-            self._dequeue()
-
-    def _on_message_error(self, bus, message):
-        err, debug = message.parse_error()
-        logging.error('%s %s', err, debug)
-        self._pipeline.set_state(Gst.State.NULL)
-        self._dequeue()
-
-    def play(self, name):
-        self._queue.put(name)
-        if self._pipeline:
-            if self._pipeline.get_state(Gst.CLOCK_TIME_NONE)[1] == Gst.State.NULL:
-                self._dequeue()
-
-    def close(self):
-        self._pipeline.set_state(Gst.State.NULL)
-        self._pipeline = None
 
 
 class VanishingCursor:
@@ -135,6 +89,7 @@ class Color:
 
 
 class BlockParty:
+
     bwpx, bhpx, score, bw, bh, glass, cnt = 0, 0, 0, 11, 20, [], 0
     xshift, yshift = 0, 0
     colors = [
@@ -625,7 +580,7 @@ class BlockParty:
         # remove any children of the window that Sugar may have added
         for widget in self.window.get_children():
             self.window.remove(widget)
-        
+
         self.window_w = self.window.get_screen().get_width()
         self.window_h = self.window.get_screen().get_height()
         self.window.set_title("Block Party")
@@ -653,7 +608,7 @@ class BlockParty:
             self.colors[i] = Color(Gdk.Color.parse(self.colors[i])[1])
         self.scorefont = Pango.FontDescription('Sans')
         self.scorefont.set_size(self.window_w * 14 * Pango.SCALE / 1024)
-        self.audioplayer = AudioPlayer()
+        self.audioplayer = Aplay()
         GObject.timeout_add(20, self.timer)
         self.init_game()
 
