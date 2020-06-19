@@ -490,7 +490,7 @@ class BlockParty:
                                  self.color_score.blue)
 
         self.draw_string(
-            cairo_ctx, 'SELECT',
+            cairo_ctx, 'SELECT by pressing side arrows',
             self.xshift + (self.bwpx * self.bw) / 2,
             self.yshift + (self.bh / 2 - 2) * self.bhpx, True)
         self.draw_string(
@@ -553,7 +553,7 @@ class BlockParty:
 
         self.draw_string(
             cairo_ctx, 'Press ESC to exit',
-            self.xnext + self.bwpx * 2.5 + 60, self.window_h - 50, True)
+            self.xnext + self.bwpx * 2.5, self.window_h - 50, True)
         cairo_ctx.fill()
 
     def make_sound(self, filename):
