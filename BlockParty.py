@@ -42,7 +42,6 @@ gi.require_version('PangoCairo', '1.0')
 gi.require_version('Gst', '1.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
-from gi.repository import GObject
 from gi.repository import GLib
 from gi.repository import Gst
 from gi.repository import Pango
@@ -601,7 +600,7 @@ class BlockParty:
         self.scorefont = Pango.FontDescription('Sans')
         self.scorefont.set_size(self.window_w * 14 * Pango.SCALE / 1024)
         self.audioplayer = Aplay()
-        GObject.timeout_add(20, self.timer)
+        GLib.timeout_add(20, self.timer)
         self.init_game()
 
 
