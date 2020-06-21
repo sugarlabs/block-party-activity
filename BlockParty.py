@@ -241,11 +241,11 @@ class BlockParty:
             self.new_figure()
             if not self.figure_fits():
                 i = random.randint(0, 2)
-                if i is 0:
+                if i == 0:
                     self.make_sound('ouch.wav')
-                if i is 1:
+                if i == 1:
                     self.make_sound('wah.au')
-                if i is 2:
+                if i == 2:
                     self.make_sound('lost.wav')
                 print('GAME OVER: score ' + str(self.score))
                 self.game_mode = self.GAME_OVER
@@ -541,7 +541,7 @@ class BlockParty:
         cairo_ctx.fill()
         for i in range(4):
             for j in range(4):
-                if self.next_figure[i][j] is not 0:
+                if self.next_figure[i][j] != 0:
                     color = self.colors[self.next_figure[i][j]]
                     cairo_ctx.set_source_rgb(
                         color.red, color.green, color.blue)
