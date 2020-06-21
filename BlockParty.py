@@ -459,9 +459,9 @@ class BlockParty:
         displaystr += '\nLevel: ' + str(self.level)
         displaystr += '\nLines: ' + str(self.linecount)
 
-        cairo_ctx.set_source_rgb(self.color_score.red,
-                                 self.color_score.green,
-                                 self.color_score.blue)
+        cairo_ctx.set_source_rgb(self.color_black.red,
+                                 self.color_black.green,
+                                 self.color_black.blue)
         self.draw_string(
             cairo_ctx, displaystr, self.scorex, self.scorey, False)
         cairo_ctx.fill()
@@ -489,7 +489,11 @@ class BlockParty:
                                  self.color_score.blue)
 
         self.draw_string(
-            cairo_ctx, 'SELECT by pressing side arrows',
+            cairo_ctx, 'SELECT',
+            self.xshift + (self.bwpx * self.bw) / 2,
+            self.yshift + (self.bh / 2 - 4) * self.bhpx, True)
+        self.draw_string(
+            cairo_ctx, 'By pressing side arrows',
             self.xshift + (self.bwpx * self.bw) / 2,
             self.yshift + (self.bh / 2 - 2) * self.bhpx, True)
         self.draw_string(
@@ -497,7 +501,7 @@ class BlockParty:
             self.xshift + (self.bwpx * self.bw) / 2,
             self.yshift + (self.bh / 2) * self.bhpx, True)
         self.draw_string(
-            cairo_ctx, 'enter to start',
+            cairo_ctx, 'Enter to start',
             self.xshift + (self.bwpx * self.bw) / 2,
             self.yshift + (self.bh / 2 + 2) * self.bhpx, True)
         cairo_ctx.fill()
@@ -521,8 +525,9 @@ class BlockParty:
 
     def draw_next(self, cairo_ctx):
         cairo_ctx.set_line_width(1)
-        cairo_ctx.set_source_rgb(0, 0, 0)
-
+        cairo_ctx.set_source_rgb(self.color_black.red,
+                                 self.color_black.green,
+                                 self.color_black.blue)
         self.draw_string(
             cairo_ctx, 'NEXT', self.xnext + self.bwpx * 2.5, self.ynext, True)
         cairo_ctx.fill()
@@ -546,13 +551,13 @@ class BlockParty:
 
     def draw_escape(self, cairo_ctx):
         cairo_ctx.set_line_width(1)
-        cairo_ctx.set_source_rgb(0,
-                                 0,
-                                 0)
+        cairo_ctx.set_source_rgb(self.color_black.red,
+                                 self.color_black.green,
+                                 self.color_black.blue)
 
         self.draw_string(
             cairo_ctx, 'Press ESC to exit',
-            self.xnext + self.bwpx * 2.5, self.window_h - 50, True)
+            self.xnext + self.bwpx * 2.5, self.window_h - 4 * self.bhpx, True)
         cairo_ctx.fill()
 
     def make_sound(self, filename):
@@ -584,7 +589,8 @@ class BlockParty:
         self.window.show()
         self.color_back = Color(Gdk.Color.parse("white")[1])
         self.color_glass = Color(Gdk.Color.parse("grey")[1])
-        self.color_score = Color(Gdk.Color.parse("grey26")[1])
+        self.color_score = Color(Gdk.Color.parse("white")[1])
+        self.color_black = Color(Gdk.Color.parse("black")[1])
         self.bwpx = int(self.window_w / (self.bw + self.bw / 2 + 2))
         self.bhpx = int(self.window_h / (self.bh + 2))
         if self.bwpx < self.bhpx:
