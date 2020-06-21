@@ -205,8 +205,10 @@ class BlockParty:
         if self.game_mode == self.IDLE:
             return
         if self.game_mode == self.GAME_OVER:
-            self.init_game()
-            return
+            if key in self.enter_key:
+                self.init_game()
+                return
+
         changed = False
         if key in self.left_key:
             self.px -= 1
@@ -449,7 +451,7 @@ class BlockParty:
             self.xshift + (self.bwpx * self.bw) / 2,
             self.yshift + (self.bh / 2 - 1) * self.bhpx, True)
         self.draw_string(
-            cairo_ctx, 'Again? (x/o)',
+            cairo_ctx, 'Enter to play again',
             self.xshift + (self.bwpx * self.bw) / 2,
             self.yshift + (self.bh / 2 + 1) * self.bhpx, True)
         cairo_ctx.fill()
