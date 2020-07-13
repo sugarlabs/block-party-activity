@@ -247,7 +247,6 @@ class BlockParty:
                     self.make_sound('wah.au')
                 if i == 2:
                     self.make_sound('lost.wav')
-                print('GAME OVER: score ' + str(self.score))
                 self.game_mode = self.GAME_OVER
                 self.complete_update = True
 
@@ -567,7 +566,6 @@ class BlockParty:
         self.audioplayer.play(filename)
 
     def mousemove_cb(self, win, event):
-        print("Ah!")
         return True
 
     def __init__(self, toplevel_window):
