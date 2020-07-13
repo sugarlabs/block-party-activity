@@ -22,6 +22,11 @@
 # SOFTWARE.
 #
 
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gtk
+
 from BlockParty import BlockParty
 
 from sugar3.activity import activity
@@ -31,8 +36,12 @@ from sugar3.graphics.style import FONT_FACE, FONT_SIZE
 class BlockPartyActivity(activity.Activity):
     def __init__(self, handle):
         activity.Activity.__init__(self, handle)
+
+        canvas = Gtk.DrawingArea()
         self.block_party = BlockParty(
-            self, font_face=FONT_FACE, font_size=FONT_SIZE * 2)
+            self, canvas, font_face=FONT_FACE, font_size=FONT_SIZE * 2)
+        self.set_canvas(canvas)
+        canvas.show()
 
     def close(self, **kwargs):
         self.block_party.close()

@@ -364,30 +364,29 @@ class BlockParty:
 
     def draw_cb(self, widget, cr):
         self.update_picture(cr)
-        return True
 
     def queue_draw_complete(self):
         self.queue_draw_score()
         self.queue_draw_next()
         self.queue_draw_glass(True)
-        self.window.queue_draw()
+        self.da.queue_draw()
 
     def queue_draw_score(self):
-        self.window.queue_draw_area(
+        self.da.queue_draw_area(
             0, 0, self.xshift - self.bw * 2, self.window_h)
 
     def queue_draw_next(self):
-        self.window.queue_draw_area(
+        self.da.queue_draw_area(
             self.xnext, self.ynext, self.bwpx * 5, self.bhpx * 5 + 50)
 
     def queue_draw_glass(self, redraw):
         if redraw:
-            self.window.queue_draw_area(
+            self.da.queue_draw_area(
                 self.xshift - self.bwpx / 2, self.yshift,
                 self.bwpx * (self.bw + 1), self.bhpx * self.bh + self.bhpx / 2)
         else:
             # TODO: Only update the block since nothing else changed
-            self.window.queue_draw_area(
+            self.da.queue_draw_area(
                 self.xshift - self.bwpx / 2, self.yshift,
                 self.bwpx * (self.bw + 1), self.bhpx * self.bh + self.bhpx / 2)
 
@@ -569,25 +568,21 @@ class BlockParty:
             GLib.source_remove(self.timer_id)
         self.audioplayer.close()
 
-    def __init__(self, toplevel_window, font_face='Sans', font_size=14):
+    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14):
         self.timer_id = None
         self.glass = [[0] * self.bw for i in range(self.bh)]
         self.view_glass = None
         self.window = toplevel_window
-
-        # remove any children of the window that Sugar may have added
-        for widget in self.window.get_children():
-            self.window.remove(widget)
+        self.da = da
 
         self.window_w = self.window.get_screen().get_width()
         self.window_h = self.window.get_screen().get_height()
         self.window.set_title("Block Party")
         self.window.connect("destroy", lambda w: Gtk.main_quit())
-        self.window.set_size_request(self.window_w, self.window_h)
-        self.window.connect("draw", self.draw_cb)
-        self.window.connect("key_press_event", self.keypress_cb)
-        self.window.connect("key_release_event", self.keyrelease_cb)
-        self.window.show()
+        da.set_size_request(self.window_w, self.window_h)
+        da.connect("draw", self.draw_cb)
+        self.window.connect("key-press-event", self.keypress_cb)
+        self.window.connect("key-release-event", self.keyrelease_cb)
 
         self.color_back = Color(Gdk.Color.parse("white")[1])
         self.color_glass = Color(Gdk.Color.parse("grey")[1])
@@ -611,16 +606,18 @@ class BlockParty:
         self.init_game()
 
         def realize_cb(da):
-            self.vanishing_cursor = VanishingCursor(self.window, 5)
+            self.vanishing_cursor = VanishingCursor(da, 5)
             self.timer_id = GLib.timeout_add(20, self.timer_cb)
         self.da.connect("realize", realize_cb)
 
 
 def main():
     win = Gtk.Window(Gtk.WindowType.TOPLEVEL)
-    t = BlockParty(win)
+    da = Gtk.DrawingArea()
+    BlockParty(win, da)
+    win.add(da)
+    win.show_all()
     Gtk.main()
-    return t is not None
 
 
 if __name__ == "__main__":
