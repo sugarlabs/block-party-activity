@@ -30,7 +30,7 @@ from gi.repository import Gtk
 from BlockParty import BlockParty
 
 from sugar3.activity import activity
-from sugar3.graphics.style import FONT_FACE, FONT_SIZE
+from sugar3.graphics import style
 from sugar3.graphics.toolbarbox import ToolbarBox
 from sugar3.activity.widgets import ActivityButton
 from sugar3.activity.widgets import TitleEntry
@@ -79,7 +79,9 @@ class BlockPartyActivity(activity.Activity):
 
         canvas = Gtk.DrawingArea()
         self.block_party = BlockParty(
-            self, canvas, font_face=FONT_FACE, font_size=FONT_SIZE * 2)
+            self, canvas,
+            font_face=style.FONT_FACE, font_size=style.FONT_SIZE * 2,
+            gcs=style.GRID_CELL_SIZE)
         self.set_canvas(canvas)
         canvas.show()
 
