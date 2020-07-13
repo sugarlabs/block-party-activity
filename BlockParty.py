@@ -567,7 +567,7 @@ class BlockParty:
             GLib.source_remove(self.timer_id)
         self.audioplayer.close()
 
-    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14):
+    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14, gcs=0):
         self.timer_id = None
         self.glass = [[0] * self.bw for i in range(self.bh)]
         self.view_glass = None
@@ -575,7 +575,7 @@ class BlockParty:
         self.da = da
 
         self.window_w = self.window.get_screen().get_width()
-        self.window_h = self.window.get_screen().get_height()
+        self.window_h = self.window.get_screen().get_height() - gcs
         self.window.set_title("Block Party")
         self.window.connect("destroy", lambda w: Gtk.main_quit())
         da.set_size_request(self.window_w, self.window_h)
