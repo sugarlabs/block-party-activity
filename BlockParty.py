@@ -137,7 +137,7 @@ class BlockParty:
     score = 0
     level = 0
     figure_score = 0
-    scorefont = None
+    font = None
     color_back, color_glass, color_score = None, None, None
 
     scorex, scorey = 20, 100
@@ -426,7 +426,7 @@ class BlockParty:
     def draw_string(self, cairo_ctx, string, x, y, is_center):
         pl = PangoCairo.create_layout(cairo_ctx)
         pl.set_text(string, -1)
-        pl.set_font_description(self.scorefont)
+        pl.set_font_description(self.font)
         width = pl.get_size()[0] / Pango.SCALE
 
         if is_center:
@@ -605,8 +605,8 @@ class BlockParty:
         self.ynext = self.yshift
         for i in range(len(self.colors)):
             self.colors[i] = Color(Gdk.Color.parse(self.colors[i])[1])
-        self.scorefont = Pango.FontDescription('Sans')
-        self.scorefont.set_size(self.window_w * 14 * Pango.SCALE / 1024)
+        self.font = Pango.FontDescription('Sans')
+        self.font.set_size(self.window_w * 14 * Pango.SCALE / 1024)
         self.audioplayer = Aplay()
         GLib.timeout_add(20, self.timer)
         self.init_game()
