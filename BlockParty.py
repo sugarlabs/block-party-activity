@@ -603,7 +603,7 @@ class BlockParty:
 
 
 def main():
-    win = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    win = Gtk.Window(Gtk.WindowType.TOPLEVEL)
     t = BlockParty(win)
     Gtk.main()
     return t is not None
