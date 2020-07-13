@@ -31,3 +31,7 @@ class BlockPartyActivity(activity.Activity):
     def __init__(self, handle):
         activity.Activity.__init__(self, handle)
         self.block_party = BlockParty(self)
+
+    def close(self, **kwargs):
+        self.block_party.close()
+        activity.Activity.close(self, **kwargs)
