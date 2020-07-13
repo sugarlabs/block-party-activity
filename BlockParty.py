@@ -565,9 +565,6 @@ class BlockParty:
         filename = os.path.abspath(os.path.join('sounds', filename))
         self.audioplayer.play(filename)
 
-    def mousemove_cb(self, win, event):
-        return True
-
     def __init__(self, toplevel_window):
         self.glass = [[0] * self.bw for i in range(self.bh)]
         self.view_glass = None
