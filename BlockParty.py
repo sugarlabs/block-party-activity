@@ -358,9 +358,8 @@ class BlockParty:
             self.bwpx * (self.bw + 1), self.bhpx * self.bh + self.bhpx / 2)
         cairo_ctx.fill()
 
-    def expose_cb(self, widget, event):
-        cairo_ctx = widget.get_window().cairo_create()
-        self.update_picture(cairo_ctx)
+    def draw_cb(self, widget, cr):
+        self.update_picture(cr)
         return True
 
     def queue_draw_complete(self):
@@ -575,7 +574,7 @@ class BlockParty:
         self.window.set_title("Block Party")
         self.window.connect("destroy", lambda w: Gtk.main_quit())
         self.window.set_size_request(self.window_w, self.window_h)
-        self.window.connect("draw", self.expose_cb)
+        self.window.connect("draw", self.draw_cb)
         self.window.connect("key_press_event", self.keypress_cb)
         self.window.connect("key_release_event", self.keyrelease_cb)
         self.vanishing_cursor = VanishingCursor(self.window, 5)
