@@ -569,7 +569,7 @@ class BlockParty:
             GLib.source_remove(self.timer_id)
         self.audioplayer.close()
 
-    def __init__(self, toplevel_window):
+    def __init__(self, toplevel_window, font_face='Sans', font_size=14):
         self.timer_id = None
         self.glass = [[0] * self.bw for i in range(self.bh)]
         self.view_glass = None
@@ -605,8 +605,8 @@ class BlockParty:
         self.ynext = self.yshift
         for i in range(len(self.colors)):
             self.colors[i] = Color(Gdk.Color.parse(self.colors[i])[1])
-        self.font = Pango.FontDescription('Sans')
-        self.font.set_size(self.window_w * 14 * Pango.SCALE / 1024)
+        self.font = Pango.FontDescription(font_face)
+        self.font.set_size(self.window_w * font_size * Pango.SCALE / 900)
         self.audioplayer = Aplay()
         self.init_game()
 
