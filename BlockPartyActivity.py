@@ -30,7 +30,4 @@ from sugar3.activity import activity
 class BlockPartyActivity(activity.Activity):
     def __init__(self, handle):
         activity.Activity.__init__(self, handle)
-
-        self.set_title("BlockParty")
-
         self.block_party = BlockParty(self)
