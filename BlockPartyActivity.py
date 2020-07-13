@@ -31,7 +31,6 @@ class BlockPartyActivity(activity.Activity):
     def __init__(self, handle):
         activity.Activity.__init__(self, handle)
 
-        self.gamename = 'blockparty'
         self.set_title("BlockParty")
 
         self.block_party = BlockParty(self)
