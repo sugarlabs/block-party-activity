@@ -49,23 +49,27 @@ from aplay import Aplay
 class VanishingCursor:
 
     def __init__(self, win, hide_time=3):
-        self.save_cursor = None  # area.get_cursor()
         self.win = win
+        self._blank_cursor = Gdk.Cursor.new(Gdk.CursorType.BLANK_CURSOR)
+        self._old_cursor = self.win.get_window().get_cursor()
         self.hide_time = hide_time
         self.last_touched = time.time()
         self.win.connect("motion-notify-event", self.move_event)
         self.win.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
 
     def move_event(self, win, event):
-        self.win.get_window().set_cursor(self.save_cursor)
+        self._set_cursor(self._old_cursor)
         self.last_touched = time.time()
         return True
 
     def time_event(self):
         if time.time() - self.last_touched > self.hide_time:
-            cursor = Gdk.Cursor(cursor_type=Gdk.CursorType.BLANK_CURSOR)
-            self.win.get_window().set_cursor(cursor)
+            self._set_cursor(self._blank_cursor)
         return True
+
+    def _set_cursor(self, cursor):
+        self.win.get_window().set_cursor(cursor)
+        Gdk.flush()
 
 
 class Color:
@@ -408,7 +412,7 @@ class BlockParty:
     def keyrelease_cb(self, widget, event):
         return True
 
-    def timer(self):
+    def timer_cb(self):
         self.vanishing_cursor.time_event()
         while self.game_mode == self.PLAY and time.time() >= self.next_tick:
             self.next_tick += self.time_step
@@ -560,7 +564,13 @@ class BlockParty:
         filename = os.path.abspath(os.path.join('sounds', filename))
         self.audioplayer.play(filename)
 
+    def close(self):
+        if self.timer_id != None:
+            GLib.source_remove(self.timer_id)
+        self.audioplayer.close()
+
     def __init__(self, toplevel_window):
+        self.timer_id = None
         self.glass = [[0] * self.bw for i in range(self.bh)]
         self.view_glass = None
         self.window = toplevel_window
@@ -577,8 +587,8 @@ class BlockParty:
         self.window.connect("draw", self.draw_cb)
         self.window.connect("key_press_event", self.keypress_cb)
         self.window.connect("key_release_event", self.keyrelease_cb)
-        self.vanishing_cursor = VanishingCursor(self.window, 5)
         self.window.show()
+
         self.color_back = Color(Gdk.Color.parse("white")[1])
         self.color_glass = Color(Gdk.Color.parse("grey")[1])
         self.color_score = Color(Gdk.Color.parse("white")[1])
@@ -598,8 +608,12 @@ class BlockParty:
         self.font = Pango.FontDescription('Sans')
         self.font.set_size(self.window_w * 14 * Pango.SCALE / 1024)
         self.audioplayer = Aplay()
-        GLib.timeout_add(20, self.timer)
         self.init_game()
+
+        def realize_cb(da):
+            self.vanishing_cursor = VanishingCursor(self.window, 5)
+            self.timer_id = GLib.timeout_add(20, self.timer_cb)
+        self.da.connect("realize", realize_cb)
 
 
 def main():
