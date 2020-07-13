@@ -406,10 +406,9 @@ class BlockParty:
 
     def keypress_cb(self, widget, event):
         self.key_action(Gdk.keyval_name(event.keyval))
-        return True
 
     def keyrelease_cb(self, widget, event):
-        return True
+        pass
 
     def timer_cb(self):
         self.vanishing_cursor.time_event()
