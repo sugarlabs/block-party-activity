@@ -1,0 +1,29 @@
+9
+
+* Centre activity icon (James Cameron),
+* Fit game within canvas (James Cameron),
+* Add Sugar toolbar (James Cameron),
+* Use Gtk.DrawingArea for game (James Cameron),
+* Scale font to Sugar configuration (James Cameron),
+* Remove set_title call (James Cameron),
+* Remove unused and rename instance variable (James Cameron),
+* Remove unused signal callbacks, unused method, imports and prints (James Cameron),
+* Fix Syntax Warnings (Jui Pradhan),
+* Add Enter Key for replay (Jui Pradhan),
+* Change text color to white (Jui Pradhan),
+* Remove hardcoded coordinates (Jui Pradhan),
+* Port from GObject to GLib (Jui Pradhan),
+* Fix text out of screen and instruction (Jui Pradhan),
+* Fix missing sound files and port to GStreamer (Srevin Saju),
+* Update README (James Cameron),
+* Port to python3 (Ayush Nawal),
+* Flake8 fixes (James Cameron),
+* Port to Gtk+3 (Yash Agrawal, James Cameron),
+* Fix license (James Cameron),
+* Remove compiled objects (James Cameron)
+
+8
+
+* Change metadata
+
+7
