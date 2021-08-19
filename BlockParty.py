@@ -440,7 +440,7 @@ class BlockParty:
             self.bw * self.bwpx, self.bhpx * 6)
         cairo_ctx.fill()
         cairo_ctx.set_source_rgb(self.color_score.red,
-                                 self.color_score.green,
+                                 self.colors[0].green,
                                  self.color_score.blue)
         self.draw_string(
             cairo_ctx, 'GAME OVER',
@@ -483,7 +483,7 @@ class BlockParty:
         cairo_ctx.fill()
 
         cairo_ctx.set_source_rgb(self.color_score.red,
-                                 self.color_score.green,
+                                 self.colors[0].green,
                                  self.color_score.blue)
 
         self.draw_string(
