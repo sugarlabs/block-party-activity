@@ -118,7 +118,8 @@ class BlockParty:
 
     left_key = ['Left', 'KP_Left']
     right_key = ['Right', 'KP_Right']
-    drop_key = ['space', 'KP_Down']
+    speed_key = ['Down', 'KP_Down']
+    drop_key = ['space']
     rotate_key = ['Up', 'KP_Up']
     exit_key = ['Escape']
     sound_toggle_key = ['s', 'S']
@@ -153,6 +154,9 @@ class BlockParty:
 
     sound = False
     soundon = True
+
+    def set_time_step(self):
+        self.time_step = 0.1 + (9 - self.level) * 0.1
 
     def draw_glass(self, cairo_ctx):
         draw_glass = copy.deepcopy(self.glass)
@@ -222,6 +226,8 @@ class BlockParty:
                 self.px -= 1
             else:
                 changed = True
+        if key in self.speed_key and self.can_speed_up:
+            self.time_step = (9 - self.level) * 0.005
         if key in self.drop_key:
             changed = self.drop_figure()
         if key in self.rotate_key:
@@ -236,6 +242,8 @@ class BlockParty:
             self.figure_score -= 1
         if not self.figure_fits():
             self.py += 1
+            self.can_speed_up = False
+            self.set_time_step()
             self.put_figure()
             self.make_sound('heart.wav')
             self.new_figure()
@@ -408,7 +416,10 @@ class BlockParty:
         self.key_action(Gdk.keyval_name(event.keyval))
 
     def keyrelease_cb(self, widget, event):
-        pass
+        key = Gdk.keyval_name(event.keyval)
+        if key in self.speed_key:
+            self.set_time_step()
+            self.can_speed_up = True
 
     def timer_cb(self):
         self.vanishing_cursor.time_event()
@@ -470,7 +481,7 @@ class BlockParty:
             self.level = 0
         if self.level > 9:
             self.level = 9
-        self.time_step = 0.1 + (9 - self.level) * 0.1
+        self.set_time_step()
         self.next_tick = time.time() + self.time_step
 
     def draw_select_level_poster(self, cairo_ctx):
@@ -513,6 +524,7 @@ class BlockParty:
         self.clear_glass()
         self.complete_update = True
         self.glass_update = True
+        self.can_speed_up = True
         self.linecount = 0
         self.score = 0
         self.new_figure()
