@@ -81,12 +81,11 @@ class Color:
 
 class BlockParty:
 
-    bw, bh = 11, 20
+    bw, bh, gridwidth = 11, 20, 1
 
-    colors = [Color(Gdk.Color.parse(i)[1]) for i in [
-        'black', 'blue', 'green', 'cyan',
-        'red', 'magenta', 'YellowGreen', 'white'
-    ]]
+    colors = [
+        '#101944', 'blue', 'green', 'cyan',
+        'red', 'magenta', 'YellowGreen', 'white']
 
     figures = [
         [[0, 0, 0, 0],
@@ -211,7 +210,7 @@ class BlockParty:
                     cairo_ctx.rectangle(
                         self.xshift + j * self.bwpx,
                         self.yshift + (self.bh - i - 1) * self.bhpx,
-                        self.bwpx, self.bhpx)
+                        self.bwpx - self.gridwidth, self.bhpx - self.gridwidth)
 
                     cairo_ctx.fill()
 
@@ -398,7 +397,14 @@ class BlockParty:
                                  self.color_glass.blue)
         cairo_ctx.rectangle(
             self.xshift - self.bwpx / 2, self.yshift,
-            self.bwpx * (self.bw + 1), self.bhpx * self.bh + self.bhpx / 2)
+            self.bwpx * (self.bw + 1) - self.gridwidth, self.bhpx * self.bh + self.bhpx / 2 - self.gridwidth)
+        cairo_ctx.fill()
+        cairo_ctx.set_source_rgb(self.color_glass_back.red,
+                                 self.color_glass_back.green,
+                                 self.color_glass_back.blue)
+        cairo_ctx.rectangle(
+            self.xshift, self.yshift,
+            self.bwpx * self.bw - self.gridwidth, self.bhpx * self.bh - self.gridwidth)
         cairo_ctx.fill()
 
     def draw_cb(self, widget, cr):
@@ -499,9 +505,9 @@ class BlockParty:
         displaystr += '\nLevel: ' + str(self.level)
         displaystr += '\nLines: ' + str(self.linecount)
 
-        cairo_ctx.set_source_rgb(self.color_black.red,
-                                 self.color_black.green,
-                                 self.color_black.blue)
+        cairo_ctx.set_source_rgb(self.color_ui_text.red,
+                                 self.color_ui_text.green,
+                                 self.color_ui_text.blue)
         self.draw_string(
             cairo_ctx, displaystr, self.scorex, self.scorey, False)
         cairo_ctx.fill()
@@ -516,24 +522,17 @@ class BlockParty:
         self.next_tick = time.time() + self.time_step
 
     def draw_select_level_poster(self, cairo_ctx):
-        cairo_ctx.set_source_rgb(self.colors[0].red,
-                                 self.colors[0].green,
-                                 self.colors[0].blue)
-        cairo_ctx.rectangle(
-            self.xshift, self.yshift + (self.bh / 2 - 3) * self.bhpx,
-            self.bw * self.bwpx, self.bhpx * 7)
-        cairo_ctx.fill()
 
         cairo_ctx.set_source_rgb(self.color_score.red,
                                  self.colors[0].green,
                                  self.color_score.blue)
 
         self.draw_string(
-            cairo_ctx, 'SELECT',
+            cairo_ctx, 'Select Level',
             self.xshift + (self.bwpx * self.bw) / 2,
             self.yshift + (self.bh / 2 - 4) * self.bhpx, True)
         self.draw_string(
-            cairo_ctx, 'By pressing side arrows',
+            cairo_ctx, 'Use arrow keys',
             self.xshift + (self.bwpx * self.bw) / 2,
             self.yshift + (self.bh / 2 - 2) * self.bhpx, True)
         self.draw_string(
@@ -553,17 +552,23 @@ class BlockParty:
 
     def draw_next(self, cairo_ctx):
         cairo_ctx.set_line_width(1)
-        cairo_ctx.set_source_rgb(self.color_black.red,
-                                 self.color_black.green,
-                                 self.color_black.blue)
+        cairo_ctx.set_source_rgb(self.color_ui_text.red,
+                                 self.color_ui_text.green,
+                                 self.color_ui_text.blue)
         self.draw_string(
             cairo_ctx, 'NEXT', self.xnext + self.bwpx * 2.5, self.ynext, True)
+        cairo_ctx.fill()
+        cairo_ctx.set_source_rgb(self.color_glass.red,
+                                 self.color_glass.green,
+                                 self.color_glass.blue)
+        cairo_ctx.rectangle(
+            self.xnext, self.ynext + 50, self.bwpx * 5, self.bhpx * 5)
         cairo_ctx.fill()
         cairo_ctx.set_source_rgb(self.colors[0].red,
                                  self.colors[0].green,
                                  self.colors[0].blue)
         cairo_ctx.rectangle(
-            self.xnext, self.ynext + 50, self.bwpx * 5, self.bhpx * 5)
+            self.xnext + self.bwpx / 4, self.ynext + 50 + self.bhpx / 4, self.bwpx * 4.5, self.bhpx * 4.5)
         cairo_ctx.fill()
         for i in range(4):
             for j in range(4):
@@ -574,14 +579,14 @@ class BlockParty:
                     cairo_ctx.rectangle(
                         self.xnext + j * self.bwpx + self.bwpx / 2,
                         self.ynext + 50 + (3 - i) * self.bhpx + self.bhpx / 2,
-                        self.bwpx, self.bhpx)
+                        self.bwpx - self.gridwidth, self.bhpx - self.gridwidth)
         cairo_ctx.fill()
 
     def draw_escape(self, cairo_ctx):
         cairo_ctx.set_line_width(1)
-        cairo_ctx.set_source_rgb(self.color_black.red,
-                                 self.color_black.green,
-                                 self.color_black.blue)
+        cairo_ctx.set_source_rgb(self.color_ui_text.red,
+                                 self.color_ui_text.green,
+                                 self.color_ui_text.blue)
 
         self.draw_string(
             cairo_ctx, 'Press ESC to exit',
