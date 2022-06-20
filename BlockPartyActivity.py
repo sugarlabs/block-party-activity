@@ -55,6 +55,7 @@ class BlockPartyActivity(activity.Activity):
         toolbar_box.toolbar.insert(title_entry, -1)
         title_entry.show()
 
+        self.metadata['description'] = "Strategically rotate, move, and drop the blocks. \nAttempt to clear as many lines as possible by completing horizontal rows of blocks without empty space.\n\nLeft/right arrow keys: Rotate block\nDown arrow key: Speed up block.\nSpace: Drop the block.\nS key: Toggle sound"
         description_item = DescriptionItem(self)
         toolbar_box.toolbar.insert(description_item, -1)
         description_item.show()
