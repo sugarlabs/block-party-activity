@@ -83,10 +83,10 @@ class BlockParty:
 
     bw, bh, gridwidth = 11, 20, 1
 
-    colors = [
+    colors = [Color(Gdk.Color.parse(i)[1]) for i in [
         '#101944', 'blue', 'green', 'cyan',
-        'red', 'magenta', 'YellowGreen', 'white']
-
+        'red', 'magenta', 'YellowGreen', 'white'
+    ]]
     figures = [
         [[0, 0, 0, 0],
          [0, 1, 1, 0],
@@ -150,10 +150,11 @@ class BlockParty:
         self.window.connect("key-press-event", self.keypress_cb)
         self.window.connect("key-release-event", self.keyrelease_cb)
 
-        self.color_back = Color(Gdk.Color.parse("white")[1])
-        self.color_glass = Color(Gdk.Color.parse("grey")[1])
+        self.color_back = Color(Gdk.Color.parse("#343e76")[1])
+        self.color_glass = Color(Gdk.Color.parse("#6e82e6")[1])
+        self.color_glass_back = Color(Gdk.Color.parse("#4960d4")[1])
         self.color_score = Color(Gdk.Color.parse("white")[1])
-        self.color_black = Color(Gdk.Color.parse("black")[1])
+        self.color_ui_text = Color(Gdk.Color.parse("#eeeeee")[1])
 
         self.bwpx = int(self.window_w / (self.bw + self.bw / 2 + 2))
         self.bhpx = int(self.window_h / (self.bh + 2))
@@ -163,8 +164,12 @@ class BlockParty:
             self.bwpx = self.bhpx
         self.xshift = int((self.window_w - (self.bw + 1) * self.bwpx) / 2)
         self.yshift = int((self.window_h - (self.bh + 1) * self.bhpx) / 2)
-        self.xnext = self.xshift + (self.bw + 3) * self.bwpx
-        self.ynext = self.yshift
+        self.xnext = self.window_w - self.xshift / \
+            2 - min(self.xshift / 2, 100)
+        self.ynext = self.window_h / 2 - min(self.window_h / 2, 200)
+
+        self.scorex = self.xshift / 2 - min(self.xshift / 2, 100)
+        self.scorey = self.window_h / 2 - min(self.window_h / 2, 100)
 
         self.font = Pango.FontDescription(font_face)
         self.font.set_size(self.window_w * font_size * Pango.SCALE / 900)
@@ -595,7 +600,7 @@ class BlockParty:
 
     def make_sound(self, filename):
         filename = os.path.abspath(os.path.join('sounds', filename))
-        if self.soundon:
+        if self.sound:
             self.audioplayer.play(filename)
 
     def close(self):
