@@ -590,7 +590,8 @@ class BlockParty:
 
     def make_sound(self, filename):
         filename = os.path.abspath(os.path.join('sounds', filename))
-        self.audioplayer.play(filename)
+        if self.soundon:
+            self.audioplayer.play(filename)
 
     def close(self):
         if self.timer_id != None:
