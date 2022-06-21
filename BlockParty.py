@@ -81,11 +81,13 @@ class Color:
 
 class BlockParty:
 
-    bwpx, bhpx, score, bw, bh, glass, cnt = 0, 0, 0, 11, 20, [], 0
-    xshift, yshift = 0, 0
-    colors = [
+    bw, bh = 11, 20
+
+    colors = [Color(Gdk.Color.parse(i)[1]) for i in [
         'black', 'blue', 'green', 'cyan',
-        'red', 'magenta', 'YellowGreen', 'white']
+        'red', 'magenta', 'YellowGreen', 'white'
+    ]]
+
     figures = [
         [[0, 0, 0, 0],
          [0, 1, 1, 0],
@@ -125,35 +127,67 @@ class BlockParty:
     sound_toggle_key = ['s', 'S']
     enter_key = ['Return']
 
-    figure, px, py = None, 0, 0
-
     next_figure = None
-    xnext, ynext = 0, 0
-
-    tickcnt = 0
-    cm = None
-    area = None
-    windows = None
-    linecount = 0
-    score = 0
     level = 0
     figure_score = 0
-    font = None
-    color_back, color_glass, color_score = None, None, None
-
     scorex, scorey = 20, 100
-
-    time_step, next_tick = 100, time.time() + 100
-
-    complete_update, glass_update, next_update, score_update = \
-        False, False, False, False
 
     IDLE, SELECT_LEVEL, PLAY, GAME_OVER = 0, 1, 2, 3
 
-    game_mode = IDLE
+    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14, gcs=0):
 
-    sound = False
-    soundon = True
+        self.glass = [[0] * self.bw for i in range(self.bh)]
+        self.window = toplevel_window
+        self.da = da
+        self.game_mode = self.IDLE
+        self.sound = True
+
+        self.window_w = self.window.get_screen().get_width()
+        self.window_h = self.window.get_screen().get_height() - gcs
+        self.window.set_title("Block Party")
+        self.window.connect("destroy", lambda w: Gtk.main_quit())
+        da.set_size_request(self.window_w, self.window_h)
+        da.connect("draw", self.draw_cb)
+        self.window.connect("key-press-event", self.keypress_cb)
+        self.window.connect("key-release-event", self.keyrelease_cb)
+
+        self.color_back = Color(Gdk.Color.parse("white")[1])
+        self.color_glass = Color(Gdk.Color.parse("grey")[1])
+        self.color_score = Color(Gdk.Color.parse("white")[1])
+        self.color_black = Color(Gdk.Color.parse("black")[1])
+
+        self.bwpx = int(self.window_w / (self.bw + self.bw / 2 + 2))
+        self.bhpx = int(self.window_h / (self.bh + 2))
+        if self.bwpx < self.bhpx:
+            self.bhpx = self.bwpx
+        else:
+            self.bwpx = self.bhpx
+        self.xshift = int((self.window_w - (self.bw + 1) * self.bwpx) / 2)
+        self.yshift = int((self.window_h - (self.bh + 1) * self.bhpx) / 2)
+        self.xnext = self.xshift + (self.bw + 3) * self.bwpx
+        self.ynext = self.yshift
+
+        self.font = Pango.FontDescription(font_face)
+        self.font.set_size(self.window_w * font_size * Pango.SCALE / 900)
+        self.audioplayer = Aplay()
+
+        self.init_game()
+
+        def realize_cb(da):
+            self.vanishing_cursor = VanishingCursor(da, 5)
+            self.timer_id = GLib.timeout_add(20, self.timer_cb)
+        self.da.connect("realize", realize_cb)
+
+    def init_game(self):
+        self.clear_glass()
+        self.can_speed_up = True
+        self.linecount = 0
+        self.score = 0
+        self.new_figure()
+        self.set_level(5)
+
+        self.queue_draw_complete()
+        self.game_mode = self.SELECT_LEVEL
 
     def set_time_step(self):
         self.time_step = 0.1 + (9 - self.level) * 0.1
@@ -191,7 +225,7 @@ class BlockParty:
         if key in self.exit_key:
             self.quit_game()
         if key in self.sound_toggle_key:
-            self.soundon = not self.soundon
+            self.sound = not self.sound
             return
         if self.game_mode == self.SELECT_LEVEL:
             if key in self.left_key:
@@ -256,7 +290,6 @@ class BlockParty:
                 if i == 2:
                     self.make_sound('lost.wav')
                 self.game_mode = self.GAME_OVER
-                self.complete_update = True
 
                 self.queue_draw_complete()
                 return
@@ -271,9 +304,7 @@ class BlockParty:
             self.figures[random.randint(0, len(self.figures) - 1)])
         for i in range(random.randint(0, 3)):
             self.rotate_figure_ccw(False)
-        tmp = self.figure
-        self.figure = self.next_figure
-        self.next_figure = tmp
+        self.figure, self.next_figure = self.next_figure, self.figure
         self.px = self.bw // 2 - 2
         self.py = self.bh - 3
         if self.figure is None:
@@ -520,19 +551,6 @@ class BlockParty:
             for j in range(self.bw):
                 self.glass[i][j] = 0
 
-    def init_game(self):
-        self.clear_glass()
-        self.complete_update = True
-        self.glass_update = True
-        self.can_speed_up = True
-        self.linecount = 0
-        self.score = 0
-        self.new_figure()
-        self.set_level(5)
-
-        self.queue_draw_complete()
-        self.game_mode = self.SELECT_LEVEL
-
     def draw_next(self, cairo_ctx):
         cairo_ctx.set_line_width(1)
         cairo_ctx.set_source_rgb(self.color_black.red,
@@ -578,48 +596,6 @@ class BlockParty:
         if self.timer_id != None:
             GLib.source_remove(self.timer_id)
         self.audioplayer.close()
-
-    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14, gcs=0):
-        self.timer_id = None
-        self.glass = [[0] * self.bw for i in range(self.bh)]
-        self.view_glass = None
-        self.window = toplevel_window
-        self.da = da
-
-        self.window_w = self.window.get_screen().get_width()
-        self.window_h = self.window.get_screen().get_height() - gcs
-        self.window.set_title("Block Party")
-        self.window.connect("destroy", lambda w: Gtk.main_quit())
-        da.set_size_request(self.window_w, self.window_h)
-        da.connect("draw", self.draw_cb)
-        self.window.connect("key-press-event", self.keypress_cb)
-        self.window.connect("key-release-event", self.keyrelease_cb)
-
-        self.color_back = Color(Gdk.Color.parse("white")[1])
-        self.color_glass = Color(Gdk.Color.parse("grey")[1])
-        self.color_score = Color(Gdk.Color.parse("white")[1])
-        self.color_black = Color(Gdk.Color.parse("black")[1])
-        self.bwpx = int(self.window_w / (self.bw + self.bw / 2 + 2))
-        self.bhpx = int(self.window_h / (self.bh + 2))
-        if self.bwpx < self.bhpx:
-            self.bhpx = self.bwpx
-        else:
-            self.bwpx = self.bhpx
-        self.xshift = int((self.window_w - (self.bw + 1) * self.bwpx) / 2)
-        self.yshift = int((self.window_h - (self.bh + 1) * self.bhpx) / 2)
-        self.xnext = self.xshift + (self.bw + 3) * self.bwpx
-        self.ynext = self.yshift
-        for i in range(len(self.colors)):
-            self.colors[i] = Color(Gdk.Color.parse(self.colors[i])[1])
-        self.font = Pango.FontDescription(font_face)
-        self.font.set_size(self.window_w * font_size * Pango.SCALE / 900)
-        self.audioplayer = Aplay()
-        self.init_game()
-
-        def realize_cb(da):
-            self.vanishing_cursor = VanishingCursor(da, 5)
-            self.timer_id = GLib.timeout_add(20, self.timer_cb)
-        self.da.connect("realize", realize_cb)
 
 
 def main():
