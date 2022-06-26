@@ -1,5 +1,7 @@
 # Block Party Activity #
 
+![Screenshot](screenshots/en/1.jpg)
+
 A very fun Tetris-like game!
 
 Use left and right arrow keys to move blocks sideways.
@@ -7,6 +9,8 @@ Use left and right arrow keys to move blocks sideways.
 Use up arrow key to rotate block.
 
 Use space key to hard drop block.
+
+Hold down arrow key to speed up the block.
 
 How to use?
 -----------
