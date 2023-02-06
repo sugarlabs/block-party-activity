@@ -42,6 +42,7 @@ from gi.repository import Gdk
 from gi.repository import GLib
 from gi.repository import Pango
 from gi.repository import PangoCairo
+from sugar3.activity.activity import get_activity_root
 
 from aplay import Aplay
 
@@ -186,6 +187,7 @@ class BlockParty:
         self.clear_glass()
         self.can_speed_up = True
         self.linecount = 0
+        self.hscore = self.load_highscore()
         self.score = 0
         self.new_figure()
         self.set_level(5)
@@ -360,6 +362,8 @@ class BlockParty:
 
     def put_figure(self):
         self.score += self.figure_score
+        if self.score > self.hscore:
+            self.hscore = self.score
         self.queue_draw_score()
         for i in range(4):
             for j in range(4):
@@ -485,6 +489,7 @@ class BlockParty:
         PangoCairo.layout_path(cairo_ctx, pl)
 
     def draw_game_end_poster(self, cairo_ctx):
+        self.save_highscore()
         cairo_ctx.set_source_rgb(self.colors[0].red,
                                  self.colors[0].green,
                                  self.colors[0].blue)
@@ -506,7 +511,8 @@ class BlockParty:
         cairo_ctx.fill()
 
     def draw_score(self, cairo_ctx):
-        displaystr = 'Score: ' + str(self.score)
+        displaystr = 'HighScore: ' + str(self.hscore)
+        displaystr += '\nScore: ' + str(self.score)
         displaystr += '\nLevel: ' + str(self.level)
         displaystr += '\nLines: ' + str(self.linecount)
 
@@ -607,6 +613,30 @@ class BlockParty:
         if self.timer_id != None:
             GLib.source_remove(self.timer_id)
         self.audioplayer.close()
+
+    def read_highscore(self):
+        highscore = [0]
+        file_path = os.path.join(get_activity_root(), 'data', 'highscore')
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, "r") as fp:
+                    highscore = fp.readlines()
+                return int(highscore[0])
+            except (ValueError, IndexError) as e:
+                logging.exception(e)
+                return 0
+        return int(highscore[0])
+
+    def save_highscore(self):
+        file_path = os.path.join(get_activity_root(), 'data', 'highscore')
+        int_highscore = self.read_highscore()
+        if not int_highscore > self.score:
+            with open(file_path, "w") as fp:
+                fp.write(str(self.score))
+
+    def load_highscore(self):
+        highscore = self.read_highscore()
+        return highscore
 
 
 def main():
