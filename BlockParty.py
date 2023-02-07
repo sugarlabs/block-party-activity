@@ -42,7 +42,7 @@ from gi.repository import Gdk
 from gi.repository import GLib
 from gi.repository import Pango
 from gi.repository import PangoCairo
-from sugar3.activity.activity import get_activity_root
+from score_path import score_path
 
 from aplay import Aplay
 
@@ -132,6 +132,8 @@ class BlockParty:
     figure_score = 0
     scorex, scorey = 20, 100
 
+    score_path = None
+
     IDLE, SELECT_LEVEL, PLAY, GAME_OVER = 0, 1, 2, 3
 
     def __init__(self, toplevel_window, da, font_face='Sans', font_size=14, gcs=0):
@@ -187,7 +189,11 @@ class BlockParty:
         self.clear_glass()
         self.can_speed_up = True
         self.linecount = 0
-        self.hscore = self.load_highscore()
+        try:
+            self.score_path = score_path()
+            self.hscore = self.load_highscore()
+        except:
+            pass
         self.score = 0
         self.new_figure()
         self.set_level(5)
@@ -362,8 +368,9 @@ class BlockParty:
 
     def put_figure(self):
         self.score += self.figure_score
-        if self.score > self.hscore:
-            self.hscore = self.score
+        if self.score_path != None:
+            if self.score > self.hscore:
+                self.hscore = self.score
         self.queue_draw_score()
         for i in range(4):
             for j in range(4):
@@ -511,7 +518,10 @@ class BlockParty:
         cairo_ctx.fill()
 
     def draw_score(self, cairo_ctx):
-        displaystr = 'HighScore: ' + str(self.hscore)
+        if self.score_path != None:
+            displaystr = 'HighScore: ' + str(self.hscore)
+        else:
+            displaystr = ''
         displaystr += '\nScore: ' + str(self.score)
         displaystr += '\nLevel: ' + str(self.level)
         displaystr += '\nLines: ' + str(self.linecount)
@@ -616,7 +626,7 @@ class BlockParty:
 
     def read_highscore(self):
         highscore = [0]
-        file_path = os.path.join(get_activity_root(), 'data', 'highscore')
+        file_path = self.score_path
         if os.path.exists(file_path):
             try:
                 with open(file_path, "r") as fp:
@@ -628,7 +638,7 @@ class BlockParty:
         return int(highscore[0])
 
     def save_highscore(self):
-        file_path = os.path.join(get_activity_root(), 'data', 'highscore')
+        file_path = self.score_path
         int_highscore = self.read_highscore()
         if not int_highscore > self.score:
             with open(file_path, "w") as fp:
