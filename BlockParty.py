@@ -83,7 +83,7 @@ class BlockParty:
 
     bw, bh, gridwidth = 11, 20, 1
 
-    colors = [Color(Gdk.Color.parse(i)[1]) for i in [
+    colors = [Color(Gdk.color_parse(i)) for i in [
         '#101944', 'blue', 'green', 'cyan',
         'red', 'magenta', 'YellowGreen', 'white'
     ]]
@@ -150,11 +150,11 @@ class BlockParty:
         self.window.connect("key-press-event", self.keypress_cb)
         self.window.connect("key-release-event", self.keyrelease_cb)
 
-        self.color_back = Color(Gdk.Color.parse("#343e76")[1])
-        self.color_glass = Color(Gdk.Color.parse("#6e82e6")[1])
-        self.color_glass_back = Color(Gdk.Color.parse("#4960d4")[1])
-        self.color_score = Color(Gdk.Color.parse("white")[1])
-        self.color_ui_text = Color(Gdk.Color.parse("#eeeeee")[1])
+        self.color_back = Color(Gdk.color_parse("#343e76"))
+        self.color_glass = Color(Gdk.color_parse("#6e82e6"))
+        self.color_glass_back = Color(Gdk.color_parse("#4960d4"))
+        self.color_score = Color(Gdk.color_parse("white"))
+        self.color_ui_text = Color(Gdk.color_parse("#eeeeee"))
 
         self.bwpx = int(self.window_w / (self.bw + self.bw / 2 + 2))
         self.bhpx = int(self.window_h / (self.bh + 2))
