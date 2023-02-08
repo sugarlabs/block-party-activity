@@ -42,7 +42,6 @@ from gi.repository import Gdk
 from gi.repository import GLib
 from gi.repository import Pango
 from gi.repository import PangoCairo
-from score_path import score_path
 
 from aplay import Aplay
 
@@ -132,11 +131,9 @@ class BlockParty:
     figure_score = 0
     scorex, scorey = 20, 100
 
-    score_path = None
-
     IDLE, SELECT_LEVEL, PLAY, GAME_OVER = 0, 1, 2, 3
 
-    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14, gcs=0):
+    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14, gcs=0, score_path=None):
 
         self.glass = [[0] * self.bw for i in range(self.bh)]
         self.window = toplevel_window
@@ -174,6 +171,8 @@ class BlockParty:
         self.scorex = self.xshift / 2 - min(self.xshift / 2, 100)
         self.scorey = self.window_h / 2 - min(self.window_h / 2, 100)
 
+        self.score_path=score_path
+
         self.font = Pango.FontDescription(font_face)
         self.font.set_size(self.window_w * font_size * Pango.SCALE / 900)
         self.audioplayer = Aplay()
@@ -189,11 +188,8 @@ class BlockParty:
         self.clear_glass()
         self.can_speed_up = True
         self.linecount = 0
-        try:
-            self.score_path = score_path()
+        if self.score_path != None:
             self.hscore = self.load_highscore()
-        except:
-            pass
         self.score = 0
         self.new_figure()
         self.set_level(5)
