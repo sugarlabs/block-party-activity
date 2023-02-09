@@ -133,7 +133,8 @@ class BlockParty:
 
     IDLE, SELECT_LEVEL, PLAY, GAME_OVER = 0, 1, 2, 3
 
-    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14, gcs=0, score_path=None):
+    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14,
+                 gcs=0, score_path=None):
 
         self.glass = [[0] * self.bw for i in range(self.bh)]
         self.window = toplevel_window
@@ -171,7 +172,7 @@ class BlockParty:
         self.scorex = self.xshift / 2 - min(self.xshift / 2, 100)
         self.scorey = self.window_h / 2 - min(self.window_h / 2, 100)
 
-        self.score_path=score_path
+        self.score_path = score_path
 
         self.font = Pango.FontDescription(font_face)
         self.font.set_size(self.window_w * font_size * Pango.SCALE / 900)
@@ -188,8 +189,8 @@ class BlockParty:
         self.clear_glass()
         self.can_speed_up = True
         self.linecount = 0
-        if self.score_path != None:
-            self.hscore = self.load_highscore()
+        if self.score_path is not None:
+            self.hscore = self.read_highscore()
         self.score = 0
         self.new_figure()
         self.set_level(5)
@@ -364,7 +365,7 @@ class BlockParty:
 
     def put_figure(self):
         self.score += self.figure_score
-        if self.score_path != None:
+        if self.score_path is not None:
             if self.score > self.hscore:
                 self.hscore = self.score
         self.queue_draw_score()
@@ -514,7 +515,7 @@ class BlockParty:
         cairo_ctx.fill()
 
     def draw_score(self, cairo_ctx):
-        if self.score_path != None:
+        if self.score_path is not None:
             displaystr = 'HighScore: ' + str(self.hscore)
         else:
             displaystr = ''
@@ -621,28 +622,19 @@ class BlockParty:
         self.audioplayer.close()
 
     def read_highscore(self):
-        highscore = [0]
-        file_path = self.score_path
-        if os.path.exists(file_path):
-            try:
-                with open(file_path, "r") as fp:
-                    highscore = fp.readlines()
-                return int(highscore[0])
-            except (ValueError, IndexError) as e:
-                logging.exception(e)
-                return 0
-        return int(highscore[0])
+        try:
+            with open(self.score_path, "r") as fp:
+                return int(fp.readline())
+        except (FileNotFoundError, ValueError, IndexError):
+            return 0
 
     def save_highscore(self):
-        file_path = self.score_path
-        int_highscore = self.read_highscore()
-        if not int_highscore > self.score:
-            with open(file_path, "w") as fp:
-                fp.write(str(self.score))
-
-    def load_highscore(self):
-        highscore = self.read_highscore()
-        return highscore
+        if self.score > self.read_highscore():
+            try:
+                with open(self.score_path, "w") as fp:
+                    fp.writelines([str(self.score)])
+            except PermissionError:
+                pass
 
 
 def main():
