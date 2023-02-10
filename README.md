@@ -1,6 +1,6 @@
 # Block Party Activity #
 
-![Screenshot](screenshots/en/1.jpg)
+![Screenshot](screenshots/en/3.jpg)
 
 A very fun Tetris-like game!
 
