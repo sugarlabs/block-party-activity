@@ -133,7 +133,8 @@ class BlockParty:
 
     IDLE, SELECT_LEVEL, PLAY, GAME_OVER = 0, 1, 2, 3
 
-    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14, gcs=0):
+    def __init__(self, toplevel_window, da, font_face='Sans', font_size=14,
+                 gcs=0, score_path=None):
 
         self.glass = [[0] * self.bw for i in range(self.bh)]
         self.window = toplevel_window
@@ -171,6 +172,8 @@ class BlockParty:
         self.scorex = self.xshift / 2 - min(self.xshift / 2, 100)
         self.scorey = self.window_h / 2 - min(self.window_h / 2, 100)
 
+        self.score_path = score_path
+
         self.font = Pango.FontDescription(font_face)
         self.font.set_size(self.window_w * font_size * Pango.SCALE / 900)
         self.audioplayer = Aplay()
@@ -186,6 +189,8 @@ class BlockParty:
         self.clear_glass()
         self.can_speed_up = True
         self.linecount = 0
+        if self.score_path is not None:
+            self.hscore = self.read_highscore()
         self.score = 0
         self.new_figure()
         self.set_level(5)
@@ -360,6 +365,9 @@ class BlockParty:
 
     def put_figure(self):
         self.score += self.figure_score
+        if self.score_path is not None:
+            if self.score > self.hscore:
+                self.hscore = self.score
         self.queue_draw_score()
         for i in range(4):
             for j in range(4):
@@ -485,6 +493,7 @@ class BlockParty:
         PangoCairo.layout_path(cairo_ctx, pl)
 
     def draw_game_end_poster(self, cairo_ctx):
+        self.save_highscore()
         cairo_ctx.set_source_rgb(self.colors[0].red,
                                  self.colors[0].green,
                                  self.colors[0].blue)
@@ -506,7 +515,11 @@ class BlockParty:
         cairo_ctx.fill()
 
     def draw_score(self, cairo_ctx):
-        displaystr = 'Score: ' + str(self.score)
+        if self.score_path is not None:
+            displaystr = 'HighScore: ' + str(self.hscore)
+        else:
+            displaystr = ''
+        displaystr += '\nScore: ' + str(self.score)
         displaystr += '\nLevel: ' + str(self.level)
         displaystr += '\nLines: ' + str(self.linecount)
 
@@ -607,6 +620,21 @@ class BlockParty:
         if self.timer_id != None:
             GLib.source_remove(self.timer_id)
         self.audioplayer.close()
+
+    def read_highscore(self):
+        try:
+            with open(self.score_path, "r") as fp:
+                return int(fp.readline())
+        except (FileNotFoundError, ValueError, IndexError):
+            return 0
+
+    def save_highscore(self):
+        if self.score > self.read_highscore():
+            try:
+                with open(self.score_path, "w") as fp:
+                    fp.writelines([str(self.score)])
+            except PermissionError:
+                pass
 
 
 def main():

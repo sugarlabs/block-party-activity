@@ -23,6 +23,7 @@
 #
 
 import gi
+import os
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk
@@ -37,7 +38,7 @@ from sugar3.activity.widgets import TitleEntry
 from sugar3.activity.widgets import StopButton
 from sugar3.activity.widgets import ShareButton
 from sugar3.activity.widgets import DescriptionItem
-
+from sugar3.activity.activity import get_activity_root
 
 class BlockPartyActivity(activity.Activity):
     def __init__(self, handle):
@@ -54,6 +55,8 @@ class BlockPartyActivity(activity.Activity):
         title_entry = TitleEntry(self)
         toolbar_box.toolbar.insert(title_entry, -1)
         title_entry.show()
+
+        score_path = os.path.join(get_activity_root(), 'data', 'highscore')
 
         self.metadata['description'] = "Strategically rotate, move, and drop the blocks. \nAttempt to clear as many lines as possible by completing horizontal rows of blocks without empty space.\n\nLeft/right arrow keys: Rotate block\nDown arrow key: Speed up block.\nSpace: Drop the block.\nS key: Toggle sound"
         description_item = DescriptionItem(self)
@@ -82,7 +85,7 @@ class BlockPartyActivity(activity.Activity):
         self.block_party = BlockParty(
             self, canvas,
             font_face=style.FONT_FACE, font_size=style.FONT_SIZE * 2,
-            gcs=style.GRID_CELL_SIZE)
+            gcs=style.GRID_CELL_SIZE, score_path=score_path)
         self.set_canvas(canvas)
         canvas.show()
 
