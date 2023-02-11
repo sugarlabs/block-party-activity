@@ -169,7 +169,7 @@ class BlockParty:
             2 - min(self.xshift / 2, 100)
         self.ynext = self.window_h / 2 - min(self.window_h / 2, 200)
 
-        self.scorex = self.xshift / 2 - min(self.xshift / 2, 100)
+        self.scorex = self.xshift / 2 - min(self.xshift / 2, 150)
         self.scorey = self.window_h / 2 - min(self.window_h / 2, 100)
 
         self.score_path = score_path
