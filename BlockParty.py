@@ -136,6 +136,9 @@ class BlockParty:
     def __init__(self, toplevel_window, da, font_face='Sans', font_size=14,
                  gcs=0, score_path=None):
 
+        ghost_colors = [self.get_ghost_color(clr) for clr in self.colors]
+        self.colors = self.colors + ghost_colors[1:]
+
         self.glass = [[0] * self.bw for i in range(self.bh)]
         self.window = toplevel_window
         self.da = da
@@ -203,10 +206,15 @@ class BlockParty:
 
     def draw_glass(self, cairo_ctx):
         draw_glass = copy.deepcopy(self.glass)
+
+        ghost_figure = copy.deepcopy(self.figure)
+        ghost_py = self.generate_ghost_py(ghost_figure)
+
         for i in range(4):
             for j in range(4):
                 if self.py + i < self.bh and self.figure[i][j] != 0:
                     draw_glass[self.py + i][self.px + j] = self.figure[i][j]
+                    draw_glass[ghost_py + i][self.px + j] = ghost_figure[i][j] + len(self.figures)
 
         for i in range(self.bh):
             for j in range(self.bw):
@@ -351,15 +359,19 @@ class BlockParty:
         self.py += 1
         return oldy != self.py
 
-    def figure_fits(self):
+# Takes Argument py to calculate for ghost_peice
+    def figure_fits(self, py=None, figure=None):
+        if not py and not figure:
+            py = self.py
+            figure = self.figure
         for i in range(4):
             for j in range(4):
                 if self.figure[i][j] != 0:
-                    if i + self.py < 0 or \
+                    if i + py < 0 or \
                        j + self.px < 0 or j + self.px >= self.bw:
                         return False
-                    if i + self.py < self.bh:
-                        if self.glass[i + self.py][j + self.px] != 0:
+                    if i + py < self.bh:
+                        if self.glass[i + py][j + self.px] != 0:
                             return False
         return True
 
@@ -373,6 +385,51 @@ class BlockParty:
             for j in range(4):
                 if i + self.py < self.bh and self.figure[i][j] != 0:
                     self.glass[i + self.py][j + self.px] = self.figure[i][j]
+
+    def generate_ghost_py(self, figure):
+        ghost_py = self.py - 1
+        while self.figure_fits(ghost_py, figure):
+            ghost_py -= 1
+        return ghost_py + 1
+
+    def get_ghost_color(self, color, mix_intensity=0.5):
+        r = color.red
+        g = color.green
+        b = color.blue
+        r_int = int(r * 255)
+        g_int = int(g * 255)
+        b_int = int(b * 255)
+
+        # Convert RGB values to hexadecimal format
+        clr_string = "#{:02x}{:02x}{:02x}".format(r_int, g_int, b_int)
+        # clr_string = rgb_to_hex(r,g,b)
+        bg_color = self.colors[0]
+
+        # Convert fractions to 8-bit integer values (0-255)
+        r_int = int(bg_color.red * 255)
+        g_int = int(bg_color.green * 255)
+        b_int = int(bg_color.blue * 255)
+
+        # Convert RGB values to hexadecimal format
+        bg_string = "#{:02x}{:02x}{:02x}".format(r_int, g_int, b_int)
+
+        r1 = int(bg_string[1:3], 16)
+        g1 = int(bg_string[3:5], 16)
+        b1 = int(bg_string[5:7], 16)
+        r2 = int(clr_string[1:3], 16)
+        g2 = int(clr_string[3:5], 16)
+        b2 = int(clr_string[5:7], 16)
+
+        # Perform color interpolation
+        r = int(r1 + (r2 - r1) * mix_intensity)
+        g = int(g1 + (g2 - g1) * mix_intensity)
+        b = int(b1 + (b2 - b1) * mix_intensity)
+
+        # Convert RGB values to hexadecimal format
+        new_string = "#{:02x}{:02x}{:02x}".format(r, g, b)
+        # new_string = color_interpolation(bg_string, clr_string)
+        new_color = Color(Gdk.color_parse(new_string))
+        return new_color
 
     def chk_glass(self):
         clearlines = []
