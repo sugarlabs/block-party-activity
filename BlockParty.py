@@ -181,6 +181,8 @@ class BlockParty:
 
         self.score_path = score_path
 
+        self.bonus = 0
+
         self.font = Pango.FontDescription(font_face)
         self.font.set_size(self.window_w * font_size * Pango.SCALE / 900)
         self.audioplayer = Aplay()
@@ -396,6 +398,14 @@ class BlockParty:
         while self.figure_fits(ghost_py, figure):
             ghost_py -= 1
         return ghost_py + 1
+        
+    def bonus_line_Score(self, line):
+        self.bonus = 50 - (line * 2)
+        self.score += self.bonus
+        GLib.timeout_add_seconds(1, self.reset_bonus_text)
+
+    def reset_bonus_text(self):
+        self.bonus = 0
 
     def chk_glass(self):
         clearlines = []
@@ -405,6 +415,7 @@ class BlockParty:
                 j += 1
             if j >= self.bw:
                 clearlines.append(i)
+                self.bonus_line_Score(i)
                 self.linecount += 1
                 for j in range(self.bw):
                     self.glass[i][j] = -self.glass[i][j]
@@ -545,6 +556,9 @@ class BlockParty:
         displaystr += '\nScore: ' + str(self.score)
         displaystr += '\nLevel: ' + str(self.level)
         displaystr += '\nLines: ' + str(self.linecount)
+
+        if self.bonus > 0:
+            displaystr += '\n\nBonus: +' + str(self.bonus)
 
         cairo_ctx.set_source_rgb(self.color_ui_text.red,
                                  self.color_ui_text.green,
