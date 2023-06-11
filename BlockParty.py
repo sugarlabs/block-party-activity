@@ -136,7 +136,7 @@ class BlockParty:
                  gcs=0, score_path=None):
 
         ghost_colors = []
-        for clr in self.colors :
+        for clr in self.colors:
             ghost_color = clr.copy()
             ghost_color.alpha = 0.3
             ghost_colors.append(ghost_color)
