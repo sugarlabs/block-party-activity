@@ -46,6 +46,12 @@ from gi.repository import PangoCairo
 from aplay import Aplay
 
 
+def color_parse(color):
+    rgba = Gdk.RGBA()
+    rgba.parse(color)
+    return rgba
+
+
 class VanishingCursor:
 
     def __init__(self, win, hide_time=3):
@@ -72,18 +78,11 @@ class VanishingCursor:
         Gdk.flush()
 
 
-class Color:
-    def __init__(self, gdk_color):
-        self.red = gdk_color.red / 65535.0
-        self.green = gdk_color.green / 65535.0
-        self.blue = gdk_color.blue / 65535.0
-
-
 class BlockParty:
 
     bw, bh, gridwidth = 11, 20, 1
 
-    colors = [Color(Gdk.color_parse(i)) for i in [
+    colors = [color_parse(i) for i in [
         '#101944', 'blue', 'green', 'cyan',
         'red', 'magenta', 'YellowGreen', 'white'
     ]]
@@ -154,11 +153,11 @@ class BlockParty:
         self.window.connect("key-press-event", self.keypress_cb)
         self.window.connect("key-release-event", self.keyrelease_cb)
 
-        self.color_back = Color(Gdk.color_parse("#343e76"))
-        self.color_glass = Color(Gdk.color_parse("#6e82e6"))
-        self.color_glass_back = Color(Gdk.color_parse("#4960d4"))
-        self.color_score = Color(Gdk.color_parse("white"))
-        self.color_ui_text = Color(Gdk.color_parse("#eeeeee"))
+        self.color_back = color_parse("#343e76")
+        self.color_glass = color_parse("#6e82e6")
+        self.color_glass_back = color_parse("#4960d4")
+        self.color_score = color_parse("white")
+        self.color_ui_text = color_parse("#eeeeee")
 
         self.bwpx = int(self.window_w / (self.bw + self.bw / 2 + 2))
         self.bhpx = int(self.window_h / (self.bh + 2))
@@ -428,7 +427,7 @@ class BlockParty:
         # Convert RGB values to hexadecimal format
         new_string = "#{:02x}{:02x}{:02x}".format(r, g, b)
         # new_string = color_interpolation(bg_string, clr_string)
-        new_color = Color(Gdk.color_parse(new_string))
+        new_color = color_parse(new_string)
         return new_color
 
     def chk_glass(self):
