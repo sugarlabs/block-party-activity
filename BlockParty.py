@@ -358,7 +358,7 @@ class BlockParty:
         self.py += 1
         return oldy != self.py
 
-# Takes Argument py to calculate for ghost_peice
+    # Takes Argument py to calculate for ghost_peice
     def figure_fits(self, py=None, figure=None):
         if not py and not figure:
             py = self.py
@@ -401,7 +401,6 @@ class BlockParty:
 
         # Convert RGB values to hexadecimal format
         clr_string = "#{:02x}{:02x}{:02x}".format(r_int, g_int, b_int)
-        # clr_string = rgb_to_hex(r,g,b)
         bg_color = self.colors[0]
 
         # Convert fractions to 8-bit integer values (0-255)
@@ -426,7 +425,6 @@ class BlockParty:
 
         # Convert RGB values to hexadecimal format
         new_string = "#{:02x}{:02x}{:02x}".format(r, g, b)
-        # new_string = color_interpolation(bg_string, clr_string)
         new_color = color_parse(new_string)
         return new_color
 
