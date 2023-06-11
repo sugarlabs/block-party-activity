@@ -51,6 +51,7 @@ def color_parse(color):
     rgba.parse(color)
     return rgba
 
+
 class VanishingCursor:
 
     def __init__(self, win, hide_time=3):
@@ -134,7 +135,12 @@ class BlockParty:
     def __init__(self, toplevel_window, da, font_face='Sans', font_size=14,
                  gcs=0, score_path=None):
 
-        ghost_colors = [self.get_ghost_color(clr) for clr in self.colors]
+        ghost_colors = []
+        for clr in self.colors:
+            ghost_color = clr.copy()
+            ghost_color.alpha = 0.3
+            ghost_colors.append(ghost_color)
+
         self.colors = self.colors + ghost_colors[1:]
 
         self.glass = [[0] * self.bw for i in range(self.bh)]
@@ -390,13 +396,6 @@ class BlockParty:
         while self.figure_fits(ghost_py, figure):
             ghost_py -= 1
         return ghost_py + 1
-
-    def get_ghost_color(self, color):
-        rgba = Gdk.RGBA()
-        rgba.parse(color.to_string())
-        rgba.alpha = 0.5
-        return rgba
-
 
     def chk_glass(self):
         clearlines = []
