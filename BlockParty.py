@@ -51,7 +51,6 @@ def color_parse(color):
     rgba.parse(color)
     return rgba
 
-
 class VanishingCursor:
 
     def __init__(self, win, hide_time=3):
@@ -221,9 +220,10 @@ class BlockParty:
                    draw_glass[i][j] != self.view_glass[i][j]:
 
                     color = self.colors[draw_glass[i][j]]
-                    cairo_ctx.set_source_rgb(color.red,
-                                             color.green,
-                                             color.blue)
+                    cairo_ctx.set_source_rgba(color.red,
+                                              color.green,
+                                              color.blue,
+                                              color.alpha)
                     cairo_ctx.rectangle(
                         self.xshift + j * self.bwpx,
                         self.yshift + (self.bh - i - 1) * self.bhpx,
@@ -391,42 +391,12 @@ class BlockParty:
             ghost_py -= 1
         return ghost_py + 1
 
-    def get_ghost_color(self, color, mix_intensity=0.5):
-        r = color.red
-        g = color.green
-        b = color.blue
-        r_int = int(r * 255)
-        g_int = int(g * 255)
-        b_int = int(b * 255)
+    def get_ghost_color(self, color):
+        rgba = Gdk.RGBA()
+        rgba.parse(color.to_string())
+        rgba.alpha = 0.5
+        return rgba
 
-        # Convert RGB values to hexadecimal format
-        clr_string = "#{:02x}{:02x}{:02x}".format(r_int, g_int, b_int)
-        bg_color = self.colors[0]
-
-        # Convert fractions to 8-bit integer values (0-255)
-        r_int = int(bg_color.red * 255)
-        g_int = int(bg_color.green * 255)
-        b_int = int(bg_color.blue * 255)
-
-        # Convert RGB values to hexadecimal format
-        bg_string = "#{:02x}{:02x}{:02x}".format(r_int, g_int, b_int)
-
-        r1 = int(bg_string[1:3], 16)
-        g1 = int(bg_string[3:5], 16)
-        b1 = int(bg_string[5:7], 16)
-        r2 = int(clr_string[1:3], 16)
-        g2 = int(clr_string[3:5], 16)
-        b2 = int(clr_string[5:7], 16)
-
-        # Perform color interpolation
-        r = int(r1 + (r2 - r1) * mix_intensity)
-        g = int(g1 + (g2 - g1) * mix_intensity)
-        b = int(b1 + (b2 - b1) * mix_intensity)
-
-        # Convert RGB values to hexadecimal format
-        new_string = "#{:02x}{:02x}{:02x}".format(r, g, b)
-        new_color = color_parse(new_string)
-        return new_color
 
     def chk_glass(self):
         clearlines = []
