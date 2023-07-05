@@ -1,3 +1,13 @@
+12
+
+* Upgraded deprecated Gdk.color.parse to newer Gdk.color_parse (Spandan Barve)
+* Add feature: Show Ghost piece (Riya Jain)
+* Use Gdk.RGBA (Chihurumnaya Ibiam)
+* Review - Remove commented out variables (Chihurumnaya Ibiam)
+* Utilized Gdk.rgba to get ghost piece color (Riya Jain)
+* Removed get_ghost_color_function (Riya Jain)
+* Add bonus score for line break (Riya Jain)
+
 11
 
 * Add speedup ability (Sparsh Goenka)
