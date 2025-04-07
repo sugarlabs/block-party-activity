@@ -318,6 +318,19 @@ class BlockParty:
                 self.queue_draw_complete()
                 return
         self.chk_glass()
+        for cell in self.glass[self.bh - 1]:
+            if cell != 0:
+                i = random.randint(0, 2)
+                if i == 0:
+                     self.make_sound('ouch.wav')
+                elif i == 1:
+                    self.make_sound('wah.au')
+                else:
+                    self.make_sound('lost.wav')
+                self.game_mode = self.GAME_OVER
+                self.queue_draw_complete()
+                return
+
         new_level = int(self.linecount / 5)
         if new_level > self.level:
             self.set_level(new_level)
