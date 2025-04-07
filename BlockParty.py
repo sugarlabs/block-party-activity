@@ -202,7 +202,8 @@ class BlockParty:
             self.hscore = self.read_highscore()
         self.score = 0
         self.new_figure()
-        self.set_level(5)
+        if not hasattr(self, 'level') or self.level is None:
+            self.set_level(0)
 
         self.queue_draw_complete()
         self.game_mode = self.SELECT_LEVEL
